@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="common.css" type="text/css" />
+    <link rel="stylesheet" href="sales-list.css" type="text/css" />
+    <title>판매조회</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="table">
+        <div class="title">🐱 판매조회</div>
+        <div class="row">
+          <span class="row-title">전표일자</span>
+          <div class="row-div">
+            <input type="date" placeholder="" />
+            <span>~</span>
+            <input type="date" placeholder="" />
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-title">품목</span
+          ><select name="" id="" class="row-input" style="width: 428px">
+            <option value=""></option>
+            <option value="">마우스</option>
+            <option value="">키보드</option>
+          </select>
+        </div>
+        <div class="row">
+          <span class="row-title">적요</span
+          ><input type="text" class="row-input" placeholder="적요" />
+        </div>
+      </div>
+      <div class="btn-div">
+        <button class="blue-btn">검색</button>
+      </div>
+      <div class="table-div">
+        <div class="btn-div">
+          <button>이전</button>
+          <button>다음</button>
+        </div>
+        <table class="table2">
+          <thead>
+            <tr>
+              <th class="center">
+                <input type="checkbox" disabled />
+              </th>
+              <th>전표일자/번호</th>
+              <th>품목코드</th>
+              <th>품목명</th>
+              <th>수량</th>
+              <th>단가</th>
+              <th>적요</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="center"><input type="checkbox" /></td>
+              <td><a href="sales-reg.html">2024/07/25-1</a></td>
+              <td>BJB202407310001</td>
+              <td>마우스</td>
+              <td>17</td>
+              <td>20000</td>
+              <td>신입 교육</td>
+            </tr>
+            <tr>
+              <td class="center"><input type="checkbox" /></td>
+              <td><a href="sales-reg.html">2024/07/25-2</a></td>
+              <td>BJB202407310002</td>
+              <td>키보드</td>
+              <td>17</td>
+              <td>22000</td>
+              <td>신입 교육</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="btn-div">
+        <button class="blue-btn">신규</button>
+        <button>선택삭제</button>
+      </div>
+    </div>
+  </body>
+</html>

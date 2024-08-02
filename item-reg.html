@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="common.css" type="text/css" />
+    <link rel="stylesheet" href="item-reg.css" type="text/css" />
+    <title id="web-title">품목등록</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="table">
+        <div class="title" id="title">🐱 품목등록</div>
+        <div class="row">
+          <span class="row-title">품목코드</span
+          ><input
+            id="item-code"
+            type="text"
+            class="row-input"
+            placeholder="품목코드"
+          />
+        </div>
+        <div class="row">
+          <span class="row-title">품목명</span
+          ><input
+            id="item-name"
+            type="text"
+            class="row-input"
+            placeholder="품목명"
+          />
+        </div>
+      </div>
+      <div class="btn-div">
+        <button id="save-btn" class="blue-btn">저장</button>
+        <button id="del-btn">삭제</button>
+        <button id="re-btn">다시작성</button>
+        <button id="close-btn">닫기</button>
+      </div>
+    </div>
+    <script src="./item-reg.js" type="module"></script>
+  </body>
+</html>
