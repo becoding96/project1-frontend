@@ -1,4 +1,7 @@
-import { openPopup } from "./open-pop-up.js";
+import { openPopup } from "../util/open-pop-up.js";
+
+let currentPage = 1;
+const itemsPerPage = 10;
 
 const sSlipDateFr = document.getElementById("slip-date-fr");
 const sSlipDateTo = document.getElementById("slip-date-to");
@@ -8,14 +11,72 @@ const sItemCodeDiv = document.getElementById("item-code-div");
 const salesTableBody = document.querySelector(".table2 tbody");
 
 document.getElementById("search-btn").onclick = () => {
+  currentPage = 1;
   setSalesList();
 };
 
-sItemDiv.onclick = () => openPopup("item-list.html", 800, 600, "");
+sItemDiv.onclick = () => openPopup("../item-list/item-list.html", 800, 600, "");
 document.getElementById("new-btn").onclick = () =>
-  openPopup("sales-reg.html", 700, 300, "");
+  openPopup("../sales-reg/sales-reg.html", 700, 300, "");
 
-setSalesList();
+const headerCheckBox = document.querySelector(
+  ".table2 thead input[type='checkbox']"
+);
+headerCheckBox.onclick = function (event) {
+  const checkboxes = document.querySelectorAll(
+    ".table2 tbody input[type='checkbox']"
+  );
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = event.target.checked;
+  });
+};
+
+document.getElementById("prev-btn").onclick = function () {
+  headerCheckBox.checked = false;
+
+  if (currentPage > 1) {
+    currentPage--;
+    setSalesList();
+  }
+};
+
+document.getElementById("next-btn").onclick = function () {
+  headerCheckBox.checked = false;
+
+  const salesList = getSalesList();
+  const totalPages = Math.ceil(salesList.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    setSalesList();
+  }
+};
+
+document.getElementById("check-del-btn").onclick = function () {
+  const selectedCheckboxes = document.querySelectorAll(
+    ".table2 tbody input[type='checkbox']:checked"
+  );
+
+  if (selectedCheckboxes.length === 0) {
+    alert("삭제할 항목을 선택해주세요.");
+    return;
+  }
+
+  const allSalesList =
+    JSON.parse(window.localStorage.getItem("sales-list")) || [];
+
+  const updatedSalesList = allSalesList.filter((sale) => {
+    return !Array.from(selectedCheckboxes).some(
+      (checkbox) => checkbox.dataset.slipCode === sale.slipCode
+    );
+  });
+
+  window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
+  alert("선택된 항목이 삭제되었습니다.");
+
+  currentPage = 1;
+  headerCheckBox.checked = false;
+  setSalesList();
+};
 
 function getSalesList() {
   const sItemSet = new Set(
@@ -47,19 +108,36 @@ function setSalesList() {
 
   salesTableBody.innerHTML = "";
 
-  salesList.forEach((sale) => {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, salesList.length);
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const sale = salesList[i];
+
     const row = document.createElement("tr");
 
     const checkboxCell = document.createElement("td");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
+    checkbox.dataset.slipCode = sale.slipCode;
     checkboxCell.appendChild(checkbox);
     checkboxCell.classList.add("center");
     row.appendChild(checkboxCell);
 
-    const slipDateCell = document.createElement("td");
-    slipDateCell.textContent = sale.silpCode;
-    row.appendChild(slipDateCell);
+    const slipCodeCell = document.createElement("td");
+    const slipCode = document.createElement("a");
+    slipCode.textContent = sale.slipCode;
+
+    slipCode.onclick = () =>
+      openPopup(
+        "../sales-reg/sales-reg.html",
+        700,
+        300,
+        `slip-code=${sale.slipCode}&update=true`
+      );
+
+    slipCodeCell.appendChild(slipCode);
+    row.appendChild(slipCodeCell);
 
     const itemCodeCell = document.createElement("td");
     itemCodeCell.textContent = sale.itemCode;
@@ -82,10 +160,15 @@ function setSalesList() {
     row.appendChild(descriptionCell);
 
     salesTableBody.appendChild(row);
-  });
+  }
+
+  document.getElementById("prev-btn").disabled = currentPage === 1;
+  document.getElementById("next-btn").disabled = endIndex >= salesList.length;
 }
 
 window.setSalesList = setSalesList;
+
+setSalesList();
 
 function getItemNameByCode(itemCode) {
   const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];

@@ -1,4 +1,4 @@
-import { getUrlParams } from "./get-url-params.js";
+import { getUrlParams } from "../util/get-url-params.js";
 
 const params = getUrlParams();
 
@@ -25,6 +25,9 @@ function init() {
   if (isSaved) {
     itemCode.value = savedItem.itemCode;
     itemName.value = savedItem.itemName;
+  } else {
+    itemCode.value = "";
+    itemName.value = "";
   }
 }
 

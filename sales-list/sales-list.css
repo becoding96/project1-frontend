@@ -107,7 +107,7 @@ option {
 
 .table2 th:nth-child(3),
 .table2 td:nth-child(3) {
-  width: 15%;
+  width: 12%;
 }
 
 .table2 th:nth-child(4),
@@ -117,12 +117,12 @@ option {
 
 .table2 th:nth-child(5),
 .table2 td:nth-child(5) {
-  width: 3%;
+  width: 5%;
 }
 
 .table2 th:nth-child(6),
 .table2 td:nth-child(6) {
-  width: 6%;
+  width: 7%;
 }
 
 .table2 th:nth-child(7),

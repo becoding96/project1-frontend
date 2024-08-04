@@ -1,4 +1,5 @@
-import { getUrlParams } from "./get-url-params.js";
+import { getUrlParams } from "../util/get-url-params.js";
+import { openPopup } from "../util/open-pop-up.js";
 
 let currentPage = 1;
 const itemsPerPage = 10;
@@ -16,7 +17,7 @@ document.getElementById("search-btn").onclick = function () {
 };
 
 document.getElementById("new-btn").onclick = function () {
-  openPopup("item-reg.html", "", "", false, false);
+  openPopup("../item-reg/item-reg.html", 650, 200, `save=false&update=false`);
 };
 
 document.getElementById("prev-btn").onclick = function () {
@@ -91,11 +92,6 @@ document.getElementById("close-btn").onclick = function () {
 
 setItemList();
 
-function openPopup(url, itemCode, itemName, isSaved, isUpdate) {
-  const popupUrl = `${url}?item-code=${itemCode}&item-name=${itemName}&save=${isSaved}&update=${isUpdate}`;
-  window.open(popupUrl, "_blank", "width=650, height=200");
-}
-
 function getItemList() {
   let itemList = JSON.parse(window.localStorage.getItem("item-list"));
 
@@ -140,7 +136,12 @@ function setItemList() {
     a1.href = "#";
     a1.textContent = item.itemCode;
     a1.onclick = function () {
-      openPopup("item-reg.html", item.itemCode, item.itemName, true, false);
+      openPopup(
+        "../item-reg/item-reg.html",
+        650,
+        200,
+        `item-code=${item.itemCode}&item-name=${item.itemName}&save=true&update=false`
+      );
     };
     td2.appendChild(a1);
 
@@ -152,7 +153,12 @@ function setItemList() {
     a2.href = "#";
     a2.textContent = "수정";
     a2.onclick = function () {
-      openPopup("item-reg.html", item.itemCode, item.itemName, true, true);
+      openPopup(
+        "../item-reg/item-reg.html",
+        650,
+        200,
+        `item-code=${item.itemCode}&item-name=${item.itemName}&save=true&update=true`
+      );
     };
     td4.appendChild(a2);
     td4.classList.add("center");
