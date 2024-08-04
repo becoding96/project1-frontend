@@ -1,12 +1,12 @@
 export function getUrlParams() {
-  var params = {};
+  const params = {};
+  const queryString = window.location.search.substring(1);
+  const regex = /([^&=]+)=([^&]*)/g;
+  let match;
 
-  window.location.search.replace(
-    /[?&]+([^=&]+)=([^&]*)/gi,
-    function (str, key, value) {
-      params[key] = value;
-    }
-  );
+  while ((match = regex.exec(queryString))) {
+    params[decodeURIComponent(match[1])] = decodeURIComponent(match[2]);
+  }
 
   return params;
 }

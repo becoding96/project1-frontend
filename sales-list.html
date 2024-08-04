@@ -14,26 +14,31 @@
         <div class="row">
           <span class="row-title">전표일자</span>
           <div class="row-div">
-            <input type="date" placeholder="" />
+            <input type="date" id="slip-date-fr" />
             <span>~</span>
-            <input type="date" placeholder="" />
+            <input type="date" id="slip-date-to" />
           </div>
         </div>
-        <div class="row">
-          <span class="row-title">품목</span
-          ><select name="" id="" class="row-input" style="width: 428px">
-            <option value=""></option>
-            <option value="">마우스</option>
-            <option value="">키보드</option>
-          </select>
+        <div class="row" style="padding: 0.1rem 0.25rem">
+          <span class="row-title">품목</span>
+          <div class="row-input code-help" id="item-div"></div>
         </div>
         <div class="row">
           <span class="row-title">적요</span
-          ><input type="text" class="row-input" placeholder="적요" />
+          ><input
+            type="text"
+            class="row-input"
+            placeholder="적요"
+            id="description"
+          />
+        </div>
+        <div class="row" style="display: none">
+          <span class="row-title">품목코드</span>
+          <div class="row-input code-help" id="item-code-div"></div>
         </div>
       </div>
       <div class="btn-div">
-        <button class="blue-btn">검색</button>
+        <button class="blue-btn" id="search-btn">검색</button>
       </div>
       <div class="table-div">
         <div class="btn-div">
@@ -44,7 +49,7 @@
           <thead>
             <tr>
               <th class="center">
-                <input type="checkbox" disabled />
+                <input type="checkbox" />
               </th>
               <th>전표일자/번호</th>
               <th>품목코드</th>
@@ -54,32 +59,14 @@
               <th>적요</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="center"><input type="checkbox" /></td>
-              <td><a href="sales-reg.html">2024/07/25-1</a></td>
-              <td>BJB202407310001</td>
-              <td>마우스</td>
-              <td>17</td>
-              <td>20000</td>
-              <td>신입 교육</td>
-            </tr>
-            <tr>
-              <td class="center"><input type="checkbox" /></td>
-              <td><a href="sales-reg.html">2024/07/25-2</a></td>
-              <td>BJB202407310002</td>
-              <td>키보드</td>
-              <td>17</td>
-              <td>22000</td>
-              <td>신입 교육</td>
-            </tr>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
       <div class="btn-div">
-        <button class="blue-btn">신규</button>
+        <button class="blue-btn" id="new-btn">신규</button>
         <button>선택삭제</button>
       </div>
     </div>
+    <script src="sales-list.js" type="module"></script>
   </body>
 </html>

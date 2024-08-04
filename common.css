@@ -53,6 +53,7 @@ button:hover {
   border-collapse: collapse;
   border: 1px solid rgb(150, 150, 150);
   font-size: 0.75rem;
+  table-layout: fixed;
 }
 
 thead {
@@ -93,4 +94,13 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.code-help {
+  border: 1px solid skyblue !important;
+  background-color: rgb(239, 250, 255);
+  background-image: url(search.png);
+  background-position: 2px center;
+  background-size: 23px 23px;
+  background-repeat: no-repeat;
 }

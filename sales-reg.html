@@ -12,36 +12,53 @@
       <div class="table">
         <div class="title">🐱 판매입력</div>
         <div class="row">
-          <span class="row-title">전표일자</span
-          ><input type="date" class="row-input" placeholder="" />
+          <span class="row-title">전표일자</span>
+          <input type="date" class="row-input" placeholder="" id="slip-date" />
         </div>
         <div class="row">
-          <span class="row-title">품목</span
-          ><select name="" id="" class="row-input" style="width: 248px">
-            <option value=""></option>
-            <option value="">마우스</option>
-            <option value="">키보드</option>
-          </select>
+          <span class="row-title">품목</span>
+          <input type="text" class="row-input code-help" id="item-input" />
         </div>
         <div class="row">
-          <span class="row-title">수량</span
-          ><input type="number" class="row-input" placeholder="수량" />
+          <span class="row-title">수량</span>
+          <input type="number" class="row-input" placeholder="수량" id="qty" />
         </div>
         <div class="row">
-          <span class="row-title">단가</span
-          ><input type="number" class="row-input" placeholder="단가" />
+          <span class="row-title">단가</span>
+          <input
+            type="number"
+            class="row-input"
+            placeholder="단가"
+            id="price"
+          />
         </div>
         <div class="row">
-          <span class="row-title">적요</span
-          ><input type="text" class="row-input" placeholder="적요" />
+          <span class="row-title">적요</span>
+          <input
+            type="text"
+            class="row-input"
+            placeholder="적요"
+            id="description"
+          />
+        </div>
+        <!-- 저장은 코드만 -->
+        <div class="row" style="display: none">
+          <span class="row-title">품목코드</span>
+          <input
+            type="text"
+            class="row-input"
+            placeholder="품목코드"
+            id="item-code"
+          />
         </div>
       </div>
       <div class="btn-div">
-        <button class="blue-btn">저장</button>
-        <button>삭제</button>
-        <button>다시작성</button>
-        <button>닫기</button>
+        <button class="blue-btn" id="save-btn">저장</button>
+        <button id="del-btn">삭제</button>
+        <button id="re-btn">다시작성</button>
+        <button id="close-btn">닫기</button>
       </div>
     </div>
+    <script src="sales-reg.js" type="module"></script>
   </body>
 </html>

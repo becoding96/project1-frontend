@@ -1,5 +1,5 @@
 .table {
-  width: 400px;
+  width: 600px;
 }
 
 .row {
@@ -45,4 +45,9 @@
 
 option {
   width: 248px;
+}
+
+.code-help {
+  width: calc(60% - 32px);
+  padding-left: 35px;
 }

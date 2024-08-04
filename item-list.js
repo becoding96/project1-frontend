@@ -1,47 +1,137 @@
+import { getUrlParams } from "./get-url-params.js";
+
 let currentPage = 1;
 const itemsPerPage = 10;
 
-function getItemData() {
-  const searchItemCode = document.getElementById("search-item-code").value;
-  const searchItemName = document.getElementById("search-item-name").value;
+const params = getUrlParams();
 
-  let itemData = [];
+const searchItemCode = document.getElementById("search-item-code");
+const searchItemName = document.getElementById("search-item-name");
 
-  for (let i = 0; i < window.localStorage.length; i++) {
-    let key = window.localStorage.key(i);
-    if (key.indexOf("ITEM") === -1) continue;
-    let value = window.localStorage.getItem(key);
+searchItemCode.value = params.search || "";
 
-    try {
-      value = JSON.parse(value);
-    } catch (e) {}
+document.getElementById("search-btn").onclick = function () {
+  currentPage = 1;
+  setItemList();
+};
 
-    if (
-      (!searchItemCode || value.itemCode.indexOf(searchItemCode) !== -1) &&
-      (!searchItemName || value.itemName.indexOf(searchItemName) !== -1)
-    ) {
-      itemData.push({ key, value });
+document.getElementById("new-btn").onclick = function () {
+  openPopup("item-reg.html", "", "", false, false);
+};
+
+document.getElementById("prev-btn").onclick = function () {
+  if (currentPage > 1) {
+    currentPage--;
+    setItemList();
+  }
+};
+
+document.getElementById("next-btn").onclick = function () {
+  const itemList = getItemList();
+  const totalPages = Math.ceil(itemList.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    setItemList();
+  }
+};
+
+document.getElementById("apply-btn").onclick = function () {
+  if (window.opener && window.opener.location.href.includes("sales-reg.html")) {
+    const selectedCheckbox = document.querySelector(".item-checkbox:checked");
+
+    if (selectedCheckbox) {
+      const itemCode = selectedCheckbox.dataset.itemCode;
+      const itemName = selectedCheckbox.dataset.itemName;
+      window.opener.document.getElementById(
+        "item-input"
+      ).value = `${itemName} (${itemCode})`;
+      window.opener.document.getElementById("item-code").value = itemCode;
+      window.close();
+    } else {
+      alert("품목을 선택해주세요.");
+    }
+  } else {
+    const selectedCheckboxList = document.querySelectorAll(
+      ".item-checkbox:checked"
+    );
+
+    if (selectedCheckboxList) {
+      const itemDiv = window.opener.document.getElementById("item-div");
+      itemDiv.innerHTML = "";
+
+      const itemCodeDiv =
+        window.opener.document.getElementById("item-code-div");
+      itemCodeDiv.innerHTML = "";
+
+      selectedCheckboxList.forEach((selectedCheckbox) => {
+        const itemCode = selectedCheckbox.dataset.itemCode;
+        const itemName = selectedCheckbox.dataset.itemName;
+
+        const itemSpan = document.createElement("span");
+        itemSpan.textContent = `${itemName} (${itemCode})`;
+
+        itemDiv.appendChild(itemSpan);
+
+        const itemCodeSpan = document.createElement("span");
+        itemCodeSpan.textContent = itemCode;
+
+        itemCodeDiv.appendChild(itemCodeSpan);
+
+        window.close();
+      });
+    } else {
+      alert("품목을 선택해주세요.");
     }
   }
+};
 
-  return itemData;
+document.getElementById("close-btn").onclick = function () {
+  window.close();
+};
+
+setItemList();
+
+function openPopup(url, itemCode, itemName, isSaved, isUpdate) {
+  const popupUrl = `${url}?item-code=${itemCode}&item-name=${itemName}&save=${isSaved}&update=${isUpdate}`;
+  window.open(popupUrl, "_blank", "width=650, height=200");
 }
 
-function setItemData() {
-  const itemData = getItemData();
+function getItemList() {
+  let itemList = JSON.parse(window.localStorage.getItem("item-list"));
+
+  return itemList.filter((item) => {
+    return (
+      (!searchItemCode.value ||
+        item.itemCode
+          .toLowerCase()
+          .indexOf(searchItemCode.value.toLowerCase()) !== -1) &&
+      (!searchItemName.value ||
+        item.itemName
+          .toLowerCase()
+          .indexOf(searchItemName.value.toLowerCase()) !== -1)
+    );
+  });
+}
+
+function setItemList() {
+  const itemList = getItemList();
 
   const itemDiv = document.getElementById("item-div");
   itemDiv.innerHTML = "";
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, itemData.length);
+  const endIndex = Math.min(startIndex + itemsPerPage, itemList.length);
 
   for (let i = startIndex; i < endIndex; i++) {
-    const item = itemData[i].value;
+    const item = itemList[i];
 
     const td1 = document.createElement("td");
     const input1 = document.createElement("input");
     input1.type = "checkbox";
+    input1.classList.add("item-checkbox");
+    input1.dataset.itemCode = item.itemCode;
+    input1.dataset.itemName = item.itemName;
+    input1.addEventListener("change", handleCheckboxChange);
     td1.appendChild(input1);
     td1.classList.add("center");
 
@@ -50,7 +140,7 @@ function setItemData() {
     a1.href = "#";
     a1.textContent = item.itemCode;
     a1.onclick = function () {
-      openPopup("item-reg.html", item.itemCode, false);
+      openPopup("item-reg.html", item.itemCode, item.itemName, true, false);
     };
     td2.appendChild(a1);
 
@@ -62,7 +152,7 @@ function setItemData() {
     a2.href = "#";
     a2.textContent = "수정";
     a2.onclick = function () {
-      openPopup("item-reg.html", item.itemCode, true);
+      openPopup("item-reg.html", item.itemCode, item.itemName, true, true);
     };
     td4.appendChild(a2);
     td4.classList.add("center");
@@ -77,39 +167,20 @@ function setItemData() {
   }
 
   document.getElementById("prev-btn").disabled = currentPage === 1;
-  document.getElementById("next-btn").disabled = endIndex >= itemData.length;
+  document.getElementById("next-btn").disabled = endIndex >= itemList.length;
 }
 
-window.setItemData = setItemData;
+window.setItemList = setItemList;
 
-document.getElementById("search-btn").onclick = function () {
-  currentPage = 1;
-  setItemData();
-};
+function handleCheckboxChange(event) {
+  const maxSelection =
+    window.opener && window.opener.location.href.includes("sales-reg.html")
+      ? 1
+      : 3;
+  const checkboxes = document.querySelectorAll(".item-checkbox:checked");
 
-document.getElementById("new-btn").onclick = function () {
-  openPopup("item-reg.html", "", false);
-};
-
-document.getElementById("prev-btn").onclick = function () {
-  if (currentPage > 1) {
-    currentPage--;
-    setItemData();
+  if (checkboxes.length > maxSelection) {
+    event.target.checked = false;
+    alert(`최대 ${maxSelection}개만 선택 가능합니다.`);
   }
-};
-
-document.getElementById("next-btn").onclick = function () {
-  const itemData = getItemData();
-  const totalPages = Math.ceil(itemData.length / itemsPerPage);
-  if (currentPage < totalPages) {
-    currentPage++;
-    setItemData();
-  }
-};
-
-function openPopup(url, itemCode, isUpdate) {
-  const popupUrl = `${url}?item-code=${itemCode}&update=${isUpdate}`;
-  window.open(popupUrl, "_blank", "width=650, height=200");
 }
-
-setItemData(); // Initial load
