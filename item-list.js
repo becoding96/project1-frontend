@@ -1,6 +1,11 @@
-// 아이템 리스트
+let currentPage = 1;
+const itemsPerPage = 10;
+
 function getItemData() {
-  let itemData = {};
+  const searchItemCode = document.getElementById("search-item-code").value;
+  const searchItemName = document.getElementById("search-item-name").value;
+
+  let itemData = [];
 
   for (let i = 0; i < window.localStorage.length; i++) {
     let key = window.localStorage.key(i);
@@ -11,21 +16,28 @@ function getItemData() {
       value = JSON.parse(value);
     } catch (e) {}
 
-    itemData[key] = value;
+    if (
+      (!searchItemCode || value.itemCode.indexOf(searchItemCode) !== -1) &&
+      (!searchItemName || value.itemName.indexOf(searchItemName) !== -1)
+    ) {
+      itemData.push({ key, value });
+    }
   }
 
   return itemData;
 }
 
-// 조회 공간
 function setItemData() {
   const itemData = getItemData();
 
   const itemDiv = document.getElementById("item-div");
   itemDiv.innerHTML = "";
 
-  for (let itemKey in itemData) {
-    const item = itemData[itemKey];
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, itemData.length);
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const item = itemData[i].value;
 
     const td1 = document.createElement("td");
     const input1 = document.createElement("input");
@@ -63,18 +75,41 @@ function setItemData() {
 
     itemDiv.append(tr);
   }
+
+  document.getElementById("prev-btn").disabled = currentPage === 1;
+  document.getElementById("next-btn").disabled = endIndex >= itemData.length;
 }
 
 window.setItemData = setItemData;
 
-setItemData();
+document.getElementById("search-btn").onclick = function () {
+  currentPage = 1;
+  setItemData();
+};
 
-const newBtn = document.getElementById("new-btn");
-newBtn.onclick = function () {
+document.getElementById("new-btn").onclick = function () {
   openPopup("item-reg.html", "", false);
+};
+
+document.getElementById("prev-btn").onclick = function () {
+  if (currentPage > 1) {
+    currentPage--;
+    setItemData();
+  }
+};
+
+document.getElementById("next-btn").onclick = function () {
+  const itemData = getItemData();
+  const totalPages = Math.ceil(itemData.length / itemsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    setItemData();
+  }
 };
 
 function openPopup(url, itemCode, isUpdate) {
   const popupUrl = `${url}?item-code=${itemCode}&update=${isUpdate}`;
-  window.open(popupUrl, "_blank", "width=650,height=200");
+  window.open(popupUrl, "_blank", "width=650, height=200");
 }
+
+setItemData(); // Initial load
