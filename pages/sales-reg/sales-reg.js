@@ -96,13 +96,15 @@ document.getElementById("save-btn").onclick = function () {
 
       window.close();
     } catch (error) {
-      alert("오류가 발생했습니다.");
+      console.error(error);
     }
   } else {
     try {
       const slipDate2 = new Date(slipDate.value);
 
-      const count = salesList.reduce((count, sale) => {
+      let maxNo = 0;
+
+      salesList.forEach((sale) => {
         const savedSlipDate = new Date(sale.slipDate);
 
         if (
@@ -110,14 +112,16 @@ document.getElementById("save-btn").onclick = function () {
           savedSlipDate.getMonth() === slipDate2.getMonth() &&
           savedSlipDate.getDate() === slipDate2.getDate()
         ) {
-          return count + 1;
+          const idx = sale.slipCode.lastIndexOf("-");
+          maxNo =
+            maxNo < parseInt(sale.slipCode.slice(idx + 1), 10)
+              ? parseInt(sale.slipCode.slice(idx + 1), 10)
+              : maxNo;
         }
-
-        return count;
-      }, 1);
+      });
 
       const formData = {
-        slipCode: slipDate.value + "-" + count,
+        slipCode: slipDate.value + "-" + (maxNo + 1),
         slipDate: slipDate.value,
         itemCode: itemCode.value,
         qty: qty.value,
@@ -138,8 +142,26 @@ document.getElementById("save-btn").onclick = function () {
 
       window.close();
     } catch (error) {
-      alert("오류가 발생했습니다.");
+      console.error(error);
     }
+  }
+};
+
+/** 삭제 버튼 클릭 핸들러 */
+document.getElementById("del-btn").onclick = () => {
+  if (!isUpdate) return;
+
+  try {
+    const updatedSalesList = salesList.filter((sale) => {
+      return sale.slipCode !== savedSale.slipCode;
+    });
+
+    window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
+    if (window.opener && !window.opener.closed) window.opener.setSalesList();
+    alert("삭제되었습니다.");
+    window.close();
+  } catch (error) {
+    console.error(error);
   }
 };
 
