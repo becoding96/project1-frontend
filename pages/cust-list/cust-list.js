@@ -4,23 +4,23 @@ import { openPopup } from "../../util/open-pop-up.js";
 
 /** 페이지네이션 변수 */
 let currentPage = 1;
-const itemsPerPage = 10;
-let cachedItemList = [];
+const custsPerPage = 10;
+let cachedCustList = [];
 
 /** 쿼리 params */
 const params = getUrlParams();
 
 /** 조회 조건 설정 */
-const searchItemCode = document.getElementById("search-item-code");
-const searchItemName = document.getElementById("search-item-name");
-searchItemCode.value = params.search || "";
+const searchCustCode = document.getElementById("search-cust-code");
+const searchCustName = document.getElementById("search-cust-name");
+searchCustCode.value = params.search || "";
 
 /** 버튼 생성 */
 const searchBtn = new Button({
   label: "검색",
   onClick: () => {
     currentPage = 1;
-    fetchAndCacheItemList();
+    fetchAndCacheCustList();
   },
   className: "blue-btn",
   id: "search-btn",
@@ -31,7 +31,7 @@ const prevBtn = new Button({
   onClick: () => {
     if (currentPage > 1) {
       currentPage--;
-      renderItemList();
+      renderCustList();
     }
   },
   id: "prev-btn",
@@ -40,10 +40,10 @@ const prevBtn = new Button({
 const nextBtn = new Button({
   label: "다음",
   onClick: () => {
-    const totalPages = Math.ceil(cachedItemList.length / itemsPerPage);
+    const totalPages = Math.ceil(cachedCustList.length / custsPerPage);
     if (currentPage < totalPages) {
       currentPage++;
-      renderItemList();
+      renderCustList();
     }
   },
   id: "next-btn",
@@ -56,57 +56,57 @@ const applyBtn = new Button({
       window.opener &&
       window.opener.location.href.includes("sales-reg.html")
     ) {
-      const selectedCheckbox = document.querySelector(".item-checkbox:checked");
+      const selectedCheckbox = document.querySelector(".cust-checkbox:checked");
 
       if (selectedCheckbox) {
-        const itemCode = selectedCheckbox.dataset.itemCode;
-        const itemName = selectedCheckbox.dataset.itemName;
+        const custCode = selectedCheckbox.dataset.custCode;
+        const custName = selectedCheckbox.dataset.custName;
         window.opener.document.getElementById(
-          "item-input"
-        ).value = `${itemName} (${itemCode})`;
-        window.opener.document.getElementById("item-code").value = itemCode;
+          "cust-input"
+        ).value = `${custName} (${custCode})`;
+        window.opener.document.getElementById("cust-code").value = custCode;
         window.opener.fetchAndCacheSalesList();
         window.close();
       } else {
-        alert("품목을 선택해주세요.");
+        alert("거래처를 선택해주세요.");
       }
     } else {
       const selectedCheckboxList = document.querySelectorAll(
-        ".item-checkbox:checked"
+        ".cust-checkbox:checked"
       );
 
       if (selectedCheckboxList) {
-        const itemDiv = window.opener.document.getElementById("item-div");
-        itemDiv.innerHTML = "";
+        const custDiv = window.opener.document.getElementById("cust-div");
+        custDiv.innerHTML = "";
 
-        const itemCodeDiv =
-          window.opener.document.getElementById("item-code-div");
-        itemCodeDiv.innerHTML = "";
+        const custCodeDiv =
+          window.opener.document.getElementById("cust-code-div");
+        custCodeDiv.innerHTML = "";
 
         selectedCheckboxList.forEach((selectedCheckbox) => {
-          const itemCode = selectedCheckbox.dataset.itemCode;
-          const itemName = selectedCheckbox.dataset.itemName;
+          const custCode = selectedCheckbox.dataset.custCode;
+          const custName = selectedCheckbox.dataset.custName;
 
-          const itemSpan = document.createElement("span");
-          itemSpan.textContent = `${itemName} (${itemCode})`;
-          const itemCodeSpan = document.createElement("span");
-          itemCodeSpan.textContent = itemCode;
+          const custSpan = document.createElement("span");
+          custSpan.textContent = `${custName} (${custCode})`;
+          const custCodeSpan = document.createElement("span");
+          custCodeSpan.textContent = custCode;
 
           const outBtn = document.createElement("span");
           outBtn.textContent = "🗑️";
-          outBtn.classList.add("item-out-btn", "out-btn");
-          outBtn.dataset.itemCode = itemCode;
+          outBtn.classList.add("cust-out-btn", "out-btn");
+          outBtn.dataset.custCode = custCode;
 
-          itemSpan.appendChild(outBtn);
-          itemDiv.appendChild(itemSpan);
-          itemCodeDiv.appendChild(itemCodeSpan);
+          custSpan.appendChild(outBtn);
+          custDiv.appendChild(custSpan);
+          custCodeDiv.appendChild(custCodeSpan);
         });
 
-        window.opener.searchItemDelete();
+        window.opener.searchCustDelete();
         window.opener.fetchAndCacheSalesList();
         window.close();
       } else {
-        alert("품목을 선택해주세요.");
+        alert("거래처를 선택해주세요.");
       }
     }
   },
@@ -117,7 +117,7 @@ const applyBtn = new Button({
 const newBtn = new Button({
   label: "신규",
   onClick: () => {
-    openPopup("../item-reg/item-reg.html", 650, 200, `save=false&update=false`);
+    openPopup("../cust-reg/cust-reg.html", 650, 200, `save=false&update=false`);
   },
   id: "new-btn",
 }).render();
@@ -132,53 +132,53 @@ document.getElementById("search-btn-div").appendChild(searchBtn);
 document.getElementById("next-prev-btn-div").append(prevBtn, nextBtn);
 document.getElementById("func-btn-div").append(applyBtn, newBtn, closeBtn);
 
-/** 조건에 맞는 아이템 리스트 불러오기 */
-function fetchAndCacheItemList() {
-  let itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
+/** 조건에 맞는 거래처 리스트 불러오기 */
+function fetchAndCacheCustList() {
+  let custList = JSON.parse(window.localStorage.getItem("cust-list")) || [];
 
-  cachedItemList = itemList.filter((item) => {
+  cachedCustList = custList.filter((cust) => {
     return (
-      (!searchItemCode.value ||
-        item.itemCode
+      (!searchCustCode.value ||
+        cust.custCode
           .toLowerCase()
-          .indexOf(searchItemCode.value.toLowerCase()) !== -1) &&
-      (!searchItemName.value ||
-        item.itemName
+          .indexOf(searchCustCode.value.toLowerCase()) !== -1) &&
+      (!searchCustName.value ||
+        cust.custName
           .toLowerCase()
-          .indexOf(searchItemName.value.toLowerCase()) !== -1)
+          .indexOf(searchCustName.value.toLowerCase()) !== -1)
     );
   });
 
-  renderItemList();
+  renderCustList();
 }
 
-/** 필터링된 품목 리스트 렌더링 */
-function renderItemList() {
-  const itemDiv = document.getElementById("item-div");
-  itemDiv.innerHTML = "";
+/** 필터링된 거래처 리스트 렌더링 */
+function renderCustList() {
+  const custDiv = document.getElementById("cust-div");
+  custDiv.innerHTML = "";
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, cachedItemList.length);
+  const startIndex = (currentPage - 1) * custsPerPage;
+  const endIndex = Math.min(startIndex + custsPerPage, cachedCustList.length);
 
   /** 데이터가 하나도 없으면 이전 페이지로 */
   /** 삭제 이후 렌더링 로직 */
   if (startIndex === endIndex) {
     if (currentPage > 1) {
       currentPage--;
-      renderItemList();
+      renderCustList();
     }
     return;
   }
 
   for (let i = startIndex; i < endIndex; i++) {
-    const item = cachedItemList[i];
+    const cust = cachedCustList[i];
 
     const td1 = document.createElement("td");
     const input1 = document.createElement("input");
     input1.type = "checkbox";
-    input1.classList.add("item-checkbox");
-    input1.dataset.itemCode = item.itemCode;
-    input1.dataset.itemName = item.itemName;
+    input1.classList.add("cust-checkbox");
+    input1.dataset.custCode = cust.custCode;
+    input1.dataset.custName = cust.custName;
     input1.addEventListener("change", handleCheckboxChange);
     td1.appendChild(input1);
     td1.classList.add("center");
@@ -186,19 +186,19 @@ function renderItemList() {
     const td2 = document.createElement("td");
     const a1 = document.createElement("a");
     a1.href = "#";
-    a1.textContent = item.itemCode;
+    a1.textContent = cust.custCode;
     a1.onclick = function () {
       openPopup(
-        "../item-reg/item-reg.html",
+        "../cust-reg/cust-reg.html",
         650,
         200,
-        `item-code=${item.itemCode}&item-name=${item.itemName}&save=true&update=false`
+        `cust-code=${cust.custCode}&cust-name=${cust.custName}&save=true&update=false`
       );
     };
     td2.appendChild(a1);
 
     const td3 = document.createElement("td");
-    td3.textContent = item.itemName;
+    td3.textContent = cust.custName;
 
     const td4 = document.createElement("td");
     const a2 = document.createElement("a");
@@ -206,10 +206,10 @@ function renderItemList() {
     a2.textContent = "수정";
     a2.onclick = function () {
       openPopup(
-        "../item-reg/item-reg.html",
+        "../cust-reg/cust-reg.html",
         650,
         200,
-        `item-code=${item.itemCode}&item-name=${item.itemName}&save=true&update=true`
+        `cust-code=${cust.custCode}&cust-name=${cust.custName}&save=true&update=true`
       );
     };
     td4.appendChild(a2);
@@ -221,17 +221,17 @@ function renderItemList() {
     tr.append(td3);
     tr.append(td4);
 
-    itemDiv.append(tr);
+    custDiv.append(tr);
   }
 
   document.getElementById("prev-btn").disabled = currentPage === 1;
   document.getElementById("next-btn").disabled =
-    endIndex >= cachedItemList.length;
+    endIndex >= cachedCustList.length;
 }
 
-/** 품목 등록에서 사용할 수 있도록 전역화 */
-window.fetchAndCacheItemList = fetchAndCacheItemList;
-window.renderItemList = renderItemList;
+/** 거래처 등록에서 사용할 수 있도록 전역화 */
+window.fetchAndCacheCustList = fetchAndCacheCustList;
+window.renderCustList = renderCustList;
 
 /** 체크박스 개수 통제 */
 function handleCheckboxChange(event) {
@@ -239,7 +239,7 @@ function handleCheckboxChange(event) {
     window.opener && window.opener.location.href.includes("sales-reg.html")
       ? 1
       : 3;
-  const checkboxes = document.querySelectorAll(".item-checkbox:checked");
+  const checkboxes = document.querySelectorAll(".cust-checkbox:checked");
 
   if (checkboxes.length > maxSelection) {
     event.target.checked = false;
@@ -248,4 +248,4 @@ function handleCheckboxChange(event) {
 }
 
 /** 초기 조회 */
-fetchAndCacheItemList();
+fetchAndCacheCustList();

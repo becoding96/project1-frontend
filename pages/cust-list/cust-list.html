@@ -9,29 +9,29 @@
       href="../../styles/common-list.css"
       type="text/css"
     />
-    <title>품목조회</title>
+    <title>거래처조회</title>
     <style></style>
   </head>
   <body>
     <div class="container">
       <div class="table">
-        <div class="title">🐱 품목조회</div>
+        <div class="title">🐱 거래처조회</div>
         <div class="row">
-          <span class="row-title">품목코드</span>
+          <span class="row-title">거래처코드</span>
           <input
-            id="search-item-code"
+            id="search-cust-code"
             type="text"
             class="row-input"
-            placeholder="품목코드"
+            placeholder="거래처코드"
           />
         </div>
         <div class="row">
-          <span class="row-title">품목명</span>
+          <span class="row-title">거래처명</span>
           <input
-            id="search-item-name"
+            id="search-cust-name"
             type="text"
             class="row-input"
-            placeholder="품목명"
+            placeholder="거래처명"
           />
         </div>
       </div>
@@ -42,16 +42,16 @@
           <thead>
             <tr>
               <th class="center"><input type="checkbox" disabled /></th>
-              <th>품목코드</th>
-              <th>품목명</th>
+              <th>거래처코드</th>
+              <th>거래처명</th>
               <th class="center">수정</th>
             </tr>
           </thead>
-          <tbody id="item-div"></tbody>
+          <tbody id="cust-div"></tbody>
         </table>
       </div>
       <div class="btn-div" id="func-btn-div"></div>
     </div>
-    <script src="item-list.js" type="module"></script>
+    <script src="cust-list.js" type="module"></script>
   </body>
 </html>

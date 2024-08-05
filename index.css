@@ -71,7 +71,7 @@ option {
 }
 
 .table-div {
-  width: 1000px;
+  width: 1300px;
 }
 
 .code-help {
@@ -80,7 +80,7 @@ option {
   padding: 3px 0 3px 3px;
 }
 
-#code-help-img {
+.code-help-img {
   width: 22.2px;
   height: 22.2px;
   background-color: rgb(201, 234, 255);
@@ -89,17 +89,17 @@ option {
   margin-right: 5px;
 }
 
-#code-help-img:hover {
+.code-help-img:hover {
   background-color: rgb(154, 216, 255);
 }
 
-#item-div {
+.code-help-div {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
 }
 
-#item-div > span {
+.code-help-div > span {
   background-color: rgb(197, 233, 255);
   border-radius: 3px;
   padding: 0.1rem 0.25rem;
@@ -119,7 +119,6 @@ option {
 .out-btn:hover {
   transform: scale(1.1);
 }
-
 .table2 th:nth-child(1),
 .table2 td:nth-child(1) {
   width: 2%;
@@ -132,25 +131,51 @@ option {
 
 .table2 th:nth-child(3),
 .table2 td:nth-child(3) {
-  width: 12%;
+  width: 10%;
 }
 
 .table2 th:nth-child(4),
 .table2 td:nth-child(4) {
-  width: 30%;
+  width: 15%;
 }
 
 .table2 th:nth-child(5),
 .table2 td:nth-child(5) {
-  width: 6%;
+  width: 10%;
 }
 
 .table2 th:nth-child(6),
 .table2 td:nth-child(6) {
-  width: 8%;
+  width: 15%;
 }
 
 .table2 th:nth-child(7),
 .table2 td:nth-child(7) {
-  width: 30%;
+  width: 6%;
+}
+
+.table2 th:nth-child(8),
+.table2 td:nth-child(8) {
+  width: 8%;
+}
+
+.table2 th:nth-child(9),
+.table2 td:nth-child(9) {
+  width: 21%;
+}
+
+.table2 th:nth-child(10),
+.table2 td:nth-child(10) {
+  width: 4%;
+}
+
+.print {
+  border: none;
+  background-color: inherit;
+  color: rgb(83, 120, 255);
+  cursor: pointer;
+}
+
+.print:hover {
+  color: rgb(0, 51, 238);
 }

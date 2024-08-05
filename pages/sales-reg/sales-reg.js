@@ -21,10 +21,12 @@ const isUpdate = params["update"]
 /** 판매 항목 요소들 */
 const slipDate = document.getElementById("slip-date");
 const itemInput = document.getElementById("item-input");
+const custInput = document.getElementById("cust-input");
 const qty = document.getElementById("qty");
 const price = document.getElementById("price");
 const description = document.getElementById("description");
 const itemCode = document.getElementById("item-code");
+const custCode = document.getElementById("cust-code");
 
 /** 버튼 생성 */
 const saveBtn = new Button({
@@ -72,6 +74,22 @@ itemInput.addEventListener("dblclick", () => {
   openPopup("../item-list/item-list.html", 800, 600, "");
 });
 
+/** 거래처 입력 이벤트 리스너 추가 */
+custInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    openPopup(
+      "../cust-list/cust-list.html",
+      800,
+      600,
+      `search=${encodeURIComponent(custInput.value)}`
+    );
+  }
+});
+
+custInput.addEventListener("dblclick", () => {
+  openPopup("../cust-list/cust-list.html", 800, 600, "");
+});
+
 /** 업데이트 모드 설정 */
 if (isUpdate) {
   document.getElementById("web-title").textContent = "판매수정";
@@ -85,8 +103,15 @@ if (isUpdate) {
       (item) => item.itemCode === savedSale.itemCode
     )?.itemName || "";
 
+  const custName =
+    JSON.parse(window.localStorage.getItem("cust-list")).find(
+      (cust) => cust.custCode === savedSale.custCode
+    )?.custName || "";
+
   itemInput.value = `${savedSale.itemCode} (${itemName})`;
+  custInput.value = `${savedSale.custCode} (${custName})`;
   itemCode.value = savedSale.itemCode;
+  custCode.value = savedSale.custCode;
   qty.value = savedSale.qty;
   price.value = savedSale.price;
   description.value = savedSale.description;
@@ -102,6 +127,7 @@ function clickSaveBtnHandler() {
         slipCode: savedSale.slipCode,
         slipDate: savedSale.slipDate,
         itemCode: itemCode.value,
+        custCode: custCode.value,
         qty: qty.value,
         price: price.value,
         description: description.value,
@@ -121,7 +147,7 @@ function clickSaveBtnHandler() {
       alert("저장되었습니다.");
 
       if (window.opener && !window.opener.closed) {
-        window.opener.setSalesList();
+        window.opener.fetchAndCacheSalesList();
       }
 
       window.close();
@@ -154,6 +180,7 @@ function clickSaveBtnHandler() {
         slipCode: slipDate.value + "-" + (maxNo + 1),
         slipDate: slipDate.value,
         itemCode: itemCode.value,
+        custCode: custCode.value,
         qty: qty.value,
         price: price.value,
         description: description.value,
@@ -167,7 +194,7 @@ function clickSaveBtnHandler() {
       alert("저장되었습니다.");
 
       if (window.opener && !window.opener.closed) {
-        window.opener.setSalesList();
+        window.opener.fetchAndCacheSalesList();
       }
 
       window.close();
@@ -187,7 +214,8 @@ function clickDelBtnHandler() {
     });
 
     window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
-    if (window.opener && !window.opener.closed) window.opener.setSalesList();
+    if (window.opener && !window.opener.closed)
+      window.opener.fetchAndCacheSalesList();
     alert("삭제되었습니다.");
     window.close();
   } catch (error) {
@@ -203,6 +231,12 @@ function init() {
       savedSale.itemCode
     })`;
     itemCode.value = savedSale.itemCode;
+    const custName =
+      JSON.parse(window.localStorage.getItem("cust-list")).find(
+        (cust) => cust.custCode === savedSale.custCode
+      )?.custName || "";
+    custInput.value = `${savedSale.custCode} (${custName})`;
+    custCode.value = savedSale.custCode;
     qty.value = savedSale.qty;
     price.value = savedSale.price;
     description.value = savedSale.description;
@@ -210,6 +244,8 @@ function init() {
     slipDate.value = "";
     itemInput.value = "";
     itemCode.value = "";
+    custInput.value = "";
+    custCode.value = "";
     qty.value = "";
     price.value = "";
     description.value = "";

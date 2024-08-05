@@ -22,8 +22,25 @@
         <div class="row" style="padding: 0.1rem 0.25rem">
           <span class="row-title">품목</span>
           <div class="row-input code-help">
-            <img id="code-help-img" src="public/search.png" alt="search" />
-            <div id="item-div"></div>
+            <img
+              id="item-code-help-img"
+              class="code-help-img"
+              src="public/search.png"
+              alt="search"
+            />
+            <div id="item-div" class="code-help-div"></div>
+          </div>
+        </div>
+        <div class="row" style="padding: 0.1rem 0.25rem">
+          <span class="row-title">거래처</span>
+          <div class="row-input code-help">
+            <img
+              id="cust-code-help-img"
+              class="code-help-img"
+              src="public/search.png"
+              alt="search"
+            />
+            <div id="cust-div" class="code-help-div"></div>
           </div>
         </div>
         <div class="row">
@@ -40,6 +57,10 @@
           <span class="row-title">품목코드</span>
           <div class="row-input code-help" id="item-code-div"></div>
         </div>
+        <div class="row" style="display: none">
+          <span class="row-title">거래처코드</span>
+          <div class="row-input code-help" id="cust-code-div"></div>
+        </div>
       </div>
       <div class="btn-div" id="search-btn-div"></div>
       <div class="table-div">
@@ -53,9 +74,12 @@
               <th>전표일자/번호</th>
               <th>품목코드</th>
               <th>품목명</th>
+              <th>거래처코드</th>
+              <th>거래처명</th>
               <th>수량</th>
               <th>단가</th>
               <th>적요</th>
+              <th class="center">인쇄</th>
             </tr>
           </thead>
           <tbody></tbody>
