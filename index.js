@@ -78,7 +78,6 @@ const checkDelBtn = new Button({
     window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
     alert("선택된 항목이 삭제되었습니다.");
 
-    currentPage = 1;
     document.querySelector(
       ".table2 thead input[type='checkbox']"
     ).checked = false;
@@ -147,6 +146,14 @@ function setSalesList() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, salesList.length);
 
+  /** 데이터가 하나도 없으면 이전 페이지로 */
+  /** 삭제 이후 렌더링 로직 */
+  if (startIndex === endIndex) {
+    if (currentPage > 1) currentPage--;
+    setSalesList();
+    return;
+  }
+
   for (let i = startIndex; i < endIndex; i++) {
     const sale = salesList[i];
 
@@ -204,6 +211,29 @@ function setSalesList() {
 
 /** 판매 등록에서 사용할 수 있도록 전역화 */
 window.setSalesList = setSalesList;
+
+/** 품목 조회 조건의 품목 아이템 클릭 시 삭제 */
+function searchItemDelete() {
+  const outBtnList = document.querySelectorAll(".out-btn");
+  const itemCodeSpanList = document
+    .getElementById("item-code-div")
+    .querySelectorAll("span");
+
+  outBtnList.forEach((outBtn) => {
+    outBtn.onclick = () => {
+      outBtn.parentNode.remove();
+
+      itemCodeSpanList.forEach((itemCodeSpan) => {
+        if (itemCodeSpan.textContent === outBtn.dataset.itemCode) {
+          itemCodeSpan.remove();
+        }
+      });
+    };
+  });
+}
+
+/** 판매 등록에서 사용할 수 있도록 전역화 */
+window.searchItemDelete = searchItemDelete;
 
 /** 초기 조회 */
 setSalesList();

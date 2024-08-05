@@ -81,12 +81,12 @@ option {
 }
 
 #code-help-img {
-  width: 20px;
-  height: 20px;
+  width: 22.2px;
+  height: 22.2px;
   background-color: rgb(201, 234, 255);
   border-radius: 1px;
   cursor: pointer;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 #code-help-img:hover {
@@ -110,22 +110,15 @@ option {
   align-items: center;
 }
 
-/* .out-btn {
-  background-color: rgb(80, 135, 255);
-  color: white;
-  font-weight: bold;
-  width: 12px;
-  line-height: 12px;
-  margin-left: 5px;
-  border-radius: 50%;
-  text-align: center;
+.out-btn {
+  margin: 0 2px 0 8px;
   font-size: 0.75rem;
   cursor: pointer;
 }
 
 .out-btn:hover {
-  background-color: rgb(107, 154, 255);
-} */
+  transform: scale(1.1);
+}
 
 .table2 th:nth-child(1),
 .table2 td:nth-child(1) {

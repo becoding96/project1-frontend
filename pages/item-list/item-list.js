@@ -91,18 +91,17 @@ const applyBtn = new Button({
           const itemCodeSpan = document.createElement("span");
           itemCodeSpan.textContent = itemCode;
 
-          // const outBtn = document.createElement("span");
-          // outBtn.textContent = "-";
-          // outBtn.classList.add("out-btn");
-          // outBtn.onclick = function () {
-          //   itemSpan.remove();
-          //   itemCodeSpan.remove();
-          // };
+          const outBtn = document.createElement("span");
+          outBtn.textContent = "🗑️";
+          outBtn.classList.add("out-btn");
+          outBtn.dataset.itemCode = itemCode;
 
-          // itemSpan.appendChild(outBtn);
+          itemSpan.appendChild(outBtn);
           itemDiv.appendChild(itemSpan);
           itemCodeDiv.appendChild(itemCodeSpan);
         });
+
+        window.opener.searchItemDelete();
         window.close();
       } else {
         alert("품목을 선택해주세요.");
