@@ -65,7 +65,6 @@ const applyBtn = new Button({
           "cust-input"
         ).value = `${custName} (${custCode})`;
         window.opener.document.getElementById("cust-code").value = custCode;
-        window.opener.fetchAndCacheSalesList();
         window.close();
       } else {
         alert("거래처를 선택해주세요.");
@@ -103,7 +102,6 @@ const applyBtn = new Button({
         });
 
         window.opener.searchCustDelete();
-        window.opener.fetchAndCacheSalesList();
         window.close();
       } else {
         alert("거래처를 선택해주세요.");

@@ -65,7 +65,6 @@ const applyBtn = new Button({
           "item-input"
         ).value = `${itemName} (${itemCode})`;
         window.opener.document.getElementById("item-code").value = itemCode;
-        window.opener.fetchAndCacheSalesList();
         window.close();
       } else {
         alert("품목을 선택해주세요.");
@@ -103,7 +102,6 @@ const applyBtn = new Button({
         });
 
         window.opener.searchItemDelete();
-        window.opener.fetchAndCacheSalesList();
         window.close();
       } else {
         alert("품목을 선택해주세요.");
