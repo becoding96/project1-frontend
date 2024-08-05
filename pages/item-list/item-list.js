@@ -1,3 +1,4 @@
+import { Button } from "../../components/Button.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
 
@@ -13,90 +14,122 @@ const searchItemCode = document.getElementById("search-item-code");
 const searchItemName = document.getElementById("search-item-name");
 searchItemCode.value = params.search || "";
 
-/** 검색 버튼 클릭 시 품목 리스트를 새로 설정 */
-document.getElementById("search-btn").onclick = function () {
-  currentPage = 1;
-  setItemList();
-};
-
-/** 신규 등록 팝업 열기 */
-document.getElementById("new-btn").onclick = function () {
-  openPopup("../item-reg/item-reg.html", 650, 200, `save=false&update=false`);
-};
-
-/** 이전 페이지 버튼 클릭 시 페이지를 이동하고 리스트 새로 설정 */
-document.getElementById("prev-btn").onclick = function () {
-  if (currentPage > 1) {
-    currentPage--;
+/** 버튼 생성 */
+const searchBtn = new Button({
+  label: "검색",
+  onClick: () => {
+    currentPage = 1;
     setItemList();
-  }
-};
+  },
+  className: "blue-btn",
+  id: "search-btn",
+}).render();
 
-/** 다음 페이지 버튼 클릭 시 페이지를 이동하고 리스트 새로 설정 */
-document.getElementById("next-btn").onclick = function () {
-  const itemList = getItemList();
-  const totalPages = Math.ceil(itemList.length / itemsPerPage);
-  if (currentPage < totalPages) {
-    currentPage++;
-    setItemList();
-  }
-};
-
-/** 적용 버튼 클릭 시 체크 품목을 부모 창으로 전달 */
-document.getElementById("apply-btn").onclick = function () {
-  if (window.opener && window.opener.location.href.includes("sales-reg.html")) {
-    const selectedCheckbox = document.querySelector(".item-checkbox:checked");
-
-    if (selectedCheckbox) {
-      const itemCode = selectedCheckbox.dataset.itemCode;
-      const itemName = selectedCheckbox.dataset.itemName;
-      window.opener.document.getElementById(
-        "item-input"
-      ).value = `${itemName} (${itemCode})`;
-      window.opener.document.getElementById("item-code").value = itemCode;
-      window.close();
-    } else {
-      alert("품목을 선택해주세요.");
+const prevBtn = new Button({
+  label: "이전",
+  onClick: () => {
+    if (currentPage > 1) {
+      currentPage--;
+      setItemList();
     }
-  } else {
-    const selectedCheckboxList = document.querySelectorAll(
-      ".item-checkbox:checked"
-    );
+  },
+  id: "prev-btn",
+}).render();
 
-    if (selectedCheckboxList) {
-      const itemDiv = window.opener.document.getElementById("item-div");
-      itemDiv.innerHTML = "";
+const nextBtn = new Button({
+  label: "다음",
+  onClick: () => {
+    const itemList = getItemList();
+    const totalPages = Math.ceil(itemList.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      setItemList();
+    }
+  },
+  id: "next-btn",
+}).render();
 
-      const itemCodeDiv =
-        window.opener.document.getElementById("item-code-div");
-      itemCodeDiv.innerHTML = "";
+const applyBtn = new Button({
+  label: "적용",
+  onClick: () => {
+    if (
+      window.opener &&
+      window.opener.location.href.includes("sales-reg.html")
+    ) {
+      const selectedCheckbox = document.querySelector(".item-checkbox:checked");
 
-      selectedCheckboxList.forEach((selectedCheckbox) => {
+      if (selectedCheckbox) {
         const itemCode = selectedCheckbox.dataset.itemCode;
         const itemName = selectedCheckbox.dataset.itemName;
-
-        const itemSpan = document.createElement("span");
-        itemSpan.textContent = `${itemName} (${itemCode})`;
-
-        itemDiv.appendChild(itemSpan);
-
-        const itemCodeSpan = document.createElement("span");
-        itemCodeSpan.textContent = itemCode;
-
-        itemCodeDiv.appendChild(itemCodeSpan);
-
+        window.opener.document.getElementById(
+          "item-input"
+        ).value = `${itemName} (${itemCode})`;
+        window.opener.document.getElementById("item-code").value = itemCode;
         window.close();
-      });
+      } else {
+        alert("품목을 선택해주세요.");
+      }
     } else {
-      alert("품목을 선택해주세요.");
-    }
-  }
-};
+      const selectedCheckboxList = document.querySelectorAll(
+        ".item-checkbox:checked"
+      );
 
-/** 닫기 버튼 클릭 시 창 닫기 */
-document.getElementById("close-btn").onclick = function () {
-  window.close();
-};
+      if (selectedCheckboxList) {
+        const itemDiv = window.opener.document.getElementById("item-div");
+        itemDiv.innerHTML = "";
+
+        const itemCodeDiv =
+          window.opener.document.getElementById("item-code-div");
+        itemCodeDiv.innerHTML = "";
+
+        selectedCheckboxList.forEach((selectedCheckbox) => {
+          const itemCode = selectedCheckbox.dataset.itemCode;
+          const itemName = selectedCheckbox.dataset.itemName;
+
+          const itemSpan = document.createElement("span");
+          itemSpan.textContent = `${itemName} (${itemCode})`;
+          const itemCodeSpan = document.createElement("span");
+          itemCodeSpan.textContent = itemCode;
+
+          // const outBtn = document.createElement("span");
+          // outBtn.textContent = "-";
+          // outBtn.classList.add("out-btn");
+          // outBtn.onclick = function () {
+          //   itemSpan.remove();
+          //   itemCodeSpan.remove();
+          // };
+
+          // itemSpan.appendChild(outBtn);
+          itemDiv.appendChild(itemSpan);
+          itemCodeDiv.appendChild(itemCodeSpan);
+        });
+        window.close();
+      } else {
+        alert("품목을 선택해주세요.");
+      }
+    }
+  },
+  className: "blue-btn",
+  id: "apply-btn",
+}).render();
+
+const newBtn = new Button({
+  label: "신규",
+  onClick: () => {
+    openPopup("../item-reg/item-reg.html", 650, 200, `save=false&update=false`);
+  },
+  id: "new-btn",
+}).render();
+
+const closeBtn = new Button({
+  label: "닫기",
+  onClick: () => window.close(),
+  id: "close-btn",
+}).render();
+
+document.getElementById("search-btn-div").appendChild(searchBtn);
+document.getElementById("next-prev-btn-div").append(prevBtn, nextBtn);
+document.getElementById("func-btn-div").append(applyBtn, newBtn, closeBtn);
 
 /** 조건에 맞는 아이템 리스트 불러오기 */
 function getItemList() {

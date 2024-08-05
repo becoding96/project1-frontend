@@ -29,22 +29,12 @@ body {
   border: 1px solid rgb(150, 150, 150);
 }
 
-button {
-  padding: 0.25rem 1rem;
-  border-radius: none;
-  border: 1px solid rgb(150, 150, 150);
-  background-color: rgb(240, 240, 240);
-  font-size: 0.8rem;
-}
-
-button:hover {
-  cursor: pointer;
-  background-color: rgb(230, 230, 230);
-  transition: background-color 0.3s;
-}
-
 .table-div {
   margin-top: 2rem;
+}
+
+.btn-div {
+  margin-top: 0.5rem;
 }
 
 .table2 {
@@ -100,8 +90,4 @@ input::-webkit-inner-spin-button {
 .code-help {
   border: 1px solid skyblue !important;
   background-color: rgb(239, 250, 255);
-  background-image: url(../public/search.png);
-  background-position: 2px center;
-  background-size: 23px 23px;
-  background-repeat: no-repeat;
 }

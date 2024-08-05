@@ -1,4 +1,5 @@
 import { getUrlParams } from "../../util/get-url-params.js";
+import { Button } from "../../components/Button.js";
 
 /** 쿼리 params */
 const params = getUrlParams();
@@ -24,26 +25,45 @@ const itemName = document.getElementById("item-name");
 const webTitle = document.getElementById("web-title");
 const title = document.getElementById("title");
 
-/** 이벤트 리스너 설정 */
-document
-  .getElementById("save-btn")
-  .addEventListener("click", clickSaveBtnHandler);
-document
-  .getElementById("del-btn")
-  .addEventListener("click", clickDelBtnHandler);
-document.getElementById("re-btn").addEventListener("click", init);
-document
-  .getElementById("close-btn")
-  .addEventListener("click", () => window.close());
+/** 버튼 컴포넌트 생성 */
+const saveBtn = new Button({
+  label: "저장",
+  onClick: clickSaveBtnHandler,
+  className: "blue-btn",
+  id: "save-btn",
+}).render();
+
+const delBtn = new Button({
+  label: "삭제",
+  onClick: clickDelBtnHandler,
+  className: "",
+  id: "del-btn",
+}).render();
+
+const reBtn = new Button({
+  label: "다시작성",
+  onClick: init,
+  className: "",
+  id: "re-btn",
+}).render();
+
+const closeBtn = new Button({
+  label: "닫기",
+  onClick: () => window.close(),
+  className: "",
+  id: "close-btn",
+}).render();
+
+document.querySelector(".btn-div").append(saveBtn, delBtn, reBtn, closeBtn);
 
 /** 신규 */
 if (!isSaved && !isUpdate) {
-  document.getElementById("del-btn").style.display = "none";
+  delBtn.style.display = "none";
   /** 품목 조회 */
 } else if (isSaved && !isUpdate) {
-  document.getElementById("save-btn").style.display = "none";
-  document.getElementById("del-btn").style.display = "none";
-  document.getElementById("re-btn").style.display = "none";
+  saveBtn.style.display = "none";
+  delBtn.style.display = "none";
+  reBtn.style.display = "none";
   webTitle.textContent = "품목상세";
   title.textContent = "🐱 품목상세";
   itemCode.disabled = true;

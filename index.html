@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../../styles/common.css" type="text/css" />
-    <link rel="stylesheet" href="sales-list.css" type="text/css" />
+    <link rel="stylesheet" href="styles/common.css" type="text/css" />
+    <link rel="stylesheet" href="index.css" type="text/css" />
     <title>판매조회</title>
   </head>
   <body>
@@ -21,7 +21,10 @@
         </div>
         <div class="row" style="padding: 0.1rem 0.25rem">
           <span class="row-title">품목</span>
-          <div class="row-input code-help" id="item-div"></div>
+          <div class="row-input code-help">
+            <img id="code-help-img" src="public/search.png" alt="search" />
+            <div id="item-div"></div>
+          </div>
         </div>
         <div class="row">
           <span class="row-title">적요</span
@@ -30,6 +33,7 @@
             class="row-input"
             placeholder="적요"
             id="description"
+            style="min-height: 1.5rem"
           />
         </div>
         <div class="row" style="display: none">
@@ -37,14 +41,9 @@
           <div class="row-input code-help" id="item-code-div"></div>
         </div>
       </div>
-      <div class="btn-div">
-        <button class="blue-btn" id="search-btn">검색</button>
-      </div>
+      <div class="btn-div" id="search-btn-div"></div>
       <div class="table-div">
-        <div class="btn-div">
-          <button id="prev-btn">이전</button>
-          <button id="next-btn">다음</button>
-        </div>
+        <div class="btn-div" id="next-prev-btn-div"></div>
         <table class="table2">
           <thead>
             <tr>
@@ -62,11 +61,8 @@
           <tbody></tbody>
         </table>
       </div>
-      <div class="btn-div">
-        <button class="blue-btn" id="new-btn">신규</button>
-        <button id="check-del-btn">선택삭제</button>
-      </div>
+      <div class="btn-div" id="func-btn-div"></div>
     </div>
-    <script src="sales-list.js" type="module"></script>
+    <script src="index.js" type="module"></script>
   </body>
 </html>

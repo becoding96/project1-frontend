@@ -1,6 +1,7 @@
 import { getItemName } from "../../util/get-item-name.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
+import { Button } from "../../components/Button.js";
 
 /** URL 파라미터 */
 const params = getUrlParams();
@@ -24,7 +25,36 @@ const qty = document.getElementById("qty");
 const price = document.getElementById("price");
 const description = document.getElementById("description");
 const itemCode = document.getElementById("item-code");
-const delBtn = document.getElementById("del-btn");
+
+/** 버튼 생성 */
+const saveBtn = new Button({
+  label: "저장",
+  onClick: clickSaveBtnHandler,
+  className: "blue-btn",
+  id: "save-btn",
+}).render();
+
+const delBtn = new Button({
+  label: "삭제",
+  onClick: clickDelBtnHandler,
+  id: "del-btn",
+}).render();
+
+const reBtn = new Button({
+  label: "다시작성",
+  onClick: init,
+  id: "re-btn",
+}).render();
+
+const closeBtn = new Button({
+  label: "닫기",
+  onClick: () => window.close(),
+  id: "close-btn",
+}).render();
+
+document
+  .getElementById("button-container")
+  .append(saveBtn, delBtn, reBtn, closeBtn);
 
 /** 품목 입력 이벤트 리스너 추가 */
 itemInput.addEventListener("keydown", (event) => {
@@ -65,7 +95,7 @@ if (isUpdate) {
 }
 
 /** 저장 버튼 클릭 핸들러 */
-document.getElementById("save-btn").onclick = function () {
+function clickSaveBtnHandler() {
   if (isUpdate) {
     try {
       const formData = {
@@ -145,10 +175,10 @@ document.getElementById("save-btn").onclick = function () {
       console.error(error);
     }
   }
-};
+}
 
 /** 삭제 버튼 클릭 핸들러 */
-document.getElementById("del-btn").onclick = () => {
+function clickDelBtnHandler() {
   if (!isUpdate) return;
 
   try {
@@ -163,10 +193,10 @@ document.getElementById("del-btn").onclick = () => {
   } catch (error) {
     console.error(error);
   }
-};
+}
 
-/** 다시 작성 버튼 클릭 핸들러 */
-document.getElementById("re-btn").onclick = () => {
+/** 초기화 함수 */
+function init() {
   if (isUpdate) {
     slipDate.value = savedSale.slipDate;
     itemInput.value = `${getItemName(savedSale.itemCode)} (${
@@ -184,9 +214,12 @@ document.getElementById("re-btn").onclick = () => {
     price.value = "";
     description.value = "";
   }
-};
+}
 
 /** 닫기 버튼 클릭 핸들러 */
 document.getElementById("close-btn").onclick = () => {
   window.close();
 };
+
+/** 초기화 호출 */
+init();

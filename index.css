@@ -34,7 +34,6 @@
   text-align: center;
   line-height: 1.5rem;
   font-size: 1rem;
-  /* font-weight: bold; */
 }
 
 .row-div > input {
@@ -48,7 +47,6 @@
 .row-input {
   width: 60%;
   padding: 0 0.25rem;
-  min-height: 1.5rem;
   border: none;
   outline: none;
   font-size: 0.75rem;
@@ -77,23 +75,57 @@ option {
 }
 
 .code-help {
-  cursor: pointer;
-  width: calc(60% - 28px);
-  padding: 2px 0 2px 35px;
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
+  width: calc(60% + 5px);
+  padding: 3px 0 3px 3px;
 }
 
-.code-help span {
+#code-help-img {
+  width: 20px;
+  height: 20px;
+  background-color: rgb(201, 234, 255);
+  border-radius: 1px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+#code-help-img:hover {
+  background-color: rgb(154, 216, 255);
+}
+
+#item-div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+#item-div > span {
   background-color: rgb(197, 233, 255);
   border-radius: 3px;
   padding: 0.1rem 0.25rem;
-  margin-right: 0.5rem;
   font-size: 0.75rem;
   color: rgb(29, 101, 255);
+  height: 19px;
+  display: flex;
+  align-items: center;
 }
+
+/* .out-btn {
+  background-color: rgb(80, 135, 255);
+  color: white;
+  font-weight: bold;
+  width: 12px;
+  line-height: 12px;
+  margin-left: 5px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.out-btn:hover {
+  background-color: rgb(107, 154, 255);
+} */
 
 .table2 th:nth-child(1),
 .table2 td:nth-child(1) {

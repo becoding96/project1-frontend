@@ -29,25 +29,11 @@
   font-size: 0.75rem;
 }
 
-.btn-div {
-  margin-top: 0.5rem;
-}
-
-.blue-btn {
-  border: 1px solid rgb(0, 58, 125);
-  background-color: rgb(0, 79, 168);
-  color: white;
-}
-
-.blue-btn:hover {
-  background-color: rgb(0, 70, 150);
-}
-
-option {
-  width: 248px;
-}
-
 .code-help {
   width: calc(60% - 32px);
   padding-left: 35px;
+  background-image: url(../../public/search.png);
+  background-position: 2px center;
+  background-size: 23px 23px;
+  background-repeat: no-repeat;
 }
