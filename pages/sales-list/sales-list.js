@@ -1,38 +1,40 @@
-import { openPopup } from "../util/open-pop-up.js";
+import { openPopup } from "../../util/open-pop-up.js";
+import { getItemName } from "../../util/get-item-name.js";
 
+/** 페이지네이션 변수 */
 let currentPage = 1;
 const itemsPerPage = 10;
 
-const sSlipDateFr = document.getElementById("slip-date-fr");
-const sSlipDateTo = document.getElementById("slip-date-to");
-const sItemDiv = document.getElementById("item-div");
-const sDescription = document.getElementById("description");
-const sItemCodeDiv = document.getElementById("item-code-div");
-const salesTableBody = document.querySelector(".table2 tbody");
-
+/** 검색 버튼 클릭 시 판매 리스트를 새로 설정 */
 document.getElementById("search-btn").onclick = () => {
   currentPage = 1;
   setSalesList();
 };
 
-sItemDiv.onclick = () => openPopup("../item-list/item-list.html", 800, 600, "");
+/** 품목 선택 팝업 열기 */
+document.getElementById("item-div").onclick = () =>
+  openPopup("../item-list/item-list.html", 800, 600, "");
+
+/** 신규 등록 팝업 열기 */
 document.getElementById("new-btn").onclick = () =>
   openPopup("../sales-reg/sales-reg.html", 700, 300, "");
 
-const headerCheckBox = document.querySelector(
-  ".table2 thead input[type='checkbox']"
-);
-headerCheckBox.onclick = function (event) {
-  const checkboxes = document.querySelectorAll(
-    ".table2 tbody input[type='checkbox']"
-  );
-  checkboxes.forEach((checkbox) => {
-    checkbox.checked = event.target.checked;
-  });
-};
+/** 테이블 헤더의 체크박스 클릭 시 모든 행 체크박스 선택/해제 */
+document.querySelector(".table2 thead input[type='checkbox']").onclick =
+  function (event) {
+    const checkboxes = document.querySelectorAll(
+      ".table2 tbody input[type='checkbox']"
+    );
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = event.target.checked;
+    });
+  };
 
+/** 이전 페이지 버튼 클릭 시 페이지를 이동하고 리스트 새로 설정 */
 document.getElementById("prev-btn").onclick = function () {
-  headerCheckBox.checked = false;
+  document.querySelector(
+    ".table2 thead input[type='checkbox']"
+  ).checked = false;
 
   if (currentPage > 1) {
     currentPage--;
@@ -40,8 +42,11 @@ document.getElementById("prev-btn").onclick = function () {
   }
 };
 
+/** 다음 페이지 버튼 클릭 시 페이지를 이동하고 리스트 새로 설정 */
 document.getElementById("next-btn").onclick = function () {
-  headerCheckBox.checked = false;
+  document.querySelector(
+    ".table2 thead input[type='checkbox']"
+  ).checked = false;
 
   const salesList = getSalesList();
   const totalPages = Math.ceil(salesList.length / itemsPerPage);
@@ -51,6 +56,7 @@ document.getElementById("next-btn").onclick = function () {
   }
 };
 
+/** 선택 삭제 버튼 클릭 시 선택된 항목 삭제 */
 document.getElementById("check-del-btn").onclick = function () {
   const selectedCheckboxes = document.querySelectorAll(
     ".table2 tbody input[type='checkbox']:checked"
@@ -74,11 +80,19 @@ document.getElementById("check-del-btn").onclick = function () {
   alert("선택된 항목이 삭제되었습니다.");
 
   currentPage = 1;
-  headerCheckBox.checked = false;
+  document.querySelector(
+    ".table2 thead input[type='checkbox']"
+  ).checked = false;
   setSalesList();
 };
 
+/** 조건에 맞는 판매 리스트 불러오기 함수 */
 function getSalesList() {
+  const sItemCodeDiv = document.getElementById("item-code-div");
+  const sSlipDateFr = document.getElementById("slip-date-fr");
+  const sSlipDateTo = document.getElementById("slip-date-to");
+  const sDescription = document.getElementById("description");
+
   const sItemSet = new Set(
     Array.from(sItemCodeDiv.querySelectorAll("span")).map((sItem) => {
       return sItem.textContent;
@@ -103,8 +117,10 @@ function getSalesList() {
   });
 }
 
+/** 필터링 된 판매 리스트 화면에 렌더링 */
 function setSalesList() {
   const salesList = getSalesList();
+  const salesTableBody = document.querySelector(".table2 tbody");
 
   salesTableBody.innerHTML = "";
 
@@ -144,7 +160,7 @@ function setSalesList() {
     row.appendChild(itemCodeCell);
 
     const itemNameCell = document.createElement("td");
-    itemNameCell.textContent = getItemNameByCode(sale.itemCode);
+    itemNameCell.textContent = getItemName(sale.itemCode);
     row.appendChild(itemNameCell);
 
     const qtyCell = document.createElement("td");
@@ -166,12 +182,8 @@ function setSalesList() {
   document.getElementById("next-btn").disabled = endIndex >= salesList.length;
 }
 
+/** 판매 등록에서 사용할 수 있도록 전역화 */
 window.setSalesList = setSalesList;
 
+/** 초기 조회 */
 setSalesList();
-
-function getItemNameByCode(itemCode) {
-  const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
-  const item = itemList.find((item) => item.itemCode === itemCode);
-  return item ? item.itemName : "";
-}
