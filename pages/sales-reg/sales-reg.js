@@ -121,6 +121,18 @@ if (isUpdate) {
 
 /** 저장 버튼 클릭 핸들러 */
 function clickSaveBtnHandler() {
+  if (
+    !slipDate.value ||
+    !itemCode.value ||
+    !custCode.value ||
+    !qty.value ||
+    !price.value ||
+    !description.value
+  ) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
   if (isUpdate) {
     try {
       const formData = {

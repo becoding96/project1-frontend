@@ -122,7 +122,7 @@ function clickSaveBtnHandler() {
   };
 
   try {
-    if (itemCode.value && formData) {
+    if (itemCode.value && itemName && formData) {
       const itemList =
         JSON.parse(window.localStorage.getItem("item-list")) || [];
       const existingIndex = itemList.findIndex(
@@ -148,7 +148,7 @@ function clickSaveBtnHandler() {
       throw new Error("Invalid input data");
     }
   } catch (error) {
-    alert("오류가 발생했습니다.");
+    alert("내용을 입력해주세요.");
     console.error("Error:", error);
   }
 }
