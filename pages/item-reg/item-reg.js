@@ -90,9 +90,20 @@ function init() {
 function clickDelBtnHandler() {
   if (isUpdate) {
     const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
+    const salesList =
+      JSON.parse(window.localStorage.getItem("sales-list")) || [];
+
+    for (let i = 0; i < salesList.length; i++) {
+      if (salesList[i].itemCode === itemCode.value) {
+        alert("판매에 등록된 품목은 삭제 불가능합니다.");
+        return;
+      }
+    }
+
     const updatedList = itemList.filter(
       (item) => item.itemCode !== itemCode.value
     );
+
     window.localStorage.setItem("item-list", JSON.stringify(updatedList));
     alert("삭제되었습니다.");
     if (window.opener && !window.opener.closed) {
