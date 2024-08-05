@@ -1,3 +1,4 @@
+/** 쿼리 params 추출 */
 export function getUrlParams() {
   const params = {};
   const queryString = window.location.search.substring(1);

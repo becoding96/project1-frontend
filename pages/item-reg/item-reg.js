@@ -1,12 +1,15 @@
-import { getUrlParams } from "../util/get-url-params.js";
+import { getUrlParams } from "../../util/get-url-params.js";
 
+/** 쿼리 params */
 const params = getUrlParams();
 
+/** 저장된 아이템 */
 const savedItem = {
   itemCode: params["item-code"],
   itemName: params["item-name"],
 };
 
+/** 저장 및 수정 여부 확인 */
 const isSaved = params["save"]
   ? JSON.parse(params["save"].toLowerCase())
   : false;
@@ -14,13 +17,45 @@ const isUpdate = params["update"]
   ? JSON.parse(params["update"].toLowerCase())
   : false;
 
+/** 품목 코드, 명 */
 const itemCode = document.getElementById("item-code");
 const itemName = document.getElementById("item-name");
-const saveBtn = document.getElementById("save-btn");
-const delBtn = document.getElementById("del-btn");
-const reBtn = document.getElementById("re-btn");
-const closeBtn = document.getElementById("close-btn");
+/** 페이지 타이틀 */
+const webTitle = document.getElementById("web-title");
+const title = document.getElementById("title");
 
+/** 이벤트 리스너 설정 */
+document
+  .getElementById("save-btn")
+  .addEventListener("click", clickSaveBtnHandler);
+document
+  .getElementById("del-btn")
+  .addEventListener("click", clickDelBtnHandler);
+document.getElementById("re-btn").addEventListener("click", init);
+document
+  .getElementById("close-btn")
+  .addEventListener("click", () => window.close());
+
+/** 신규 */
+if (!isSaved && !isUpdate) {
+  document.getElementById("del-btn").style.display = "none";
+  /** 품목 조회 */
+} else if (isSaved && !isUpdate) {
+  document.getElementById("save-btn").style.display = "none";
+  document.getElementById("del-btn").style.display = "none";
+  document.getElementById("re-btn").style.display = "none";
+  webTitle.textContent = "품목상세";
+  title.textContent = "🐱 품목상세";
+  itemCode.disabled = true;
+  itemName.disabled = true;
+  /** 수정 */
+} else if (isSaved && isUpdate) {
+  webTitle.textContent = "품목수정";
+  title.textContent = "🐱 품목수정";
+  itemCode.disabled = true;
+}
+
+/** 초기화 함수 */
 function init() {
   if (isSaved) {
     itemCode.value = savedItem.itemCode;
@@ -31,8 +66,7 @@ function init() {
   }
 }
 
-init();
-
+/** 삭제 버튼 핸들러 */
 function clickDelBtnHandler() {
   if (isUpdate) {
     const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
@@ -48,8 +82,9 @@ function clickDelBtnHandler() {
   }
 }
 
+/** 저장 버튼 핸들러 */
 function clickSaveBtnHandler() {
-  let formData = {
+  const formData = {
     itemCode: itemCode.value,
     itemName: itemName.value,
     date: new Date(),
@@ -87,29 +122,5 @@ function clickSaveBtnHandler() {
   }
 }
 
-saveBtn.addEventListener("click", clickSaveBtnHandler);
-delBtn.addEventListener("click", clickDelBtnHandler);
-reBtn.addEventListener("click", init);
-closeBtn.addEventListener("click", () => window.close());
-
-const webTitle = document.getElementById("web-title");
-const title = document.getElementById("title");
-
-// 신규
-if (!isSaved && !isUpdate) {
-  delBtn.style.display = "none";
-  // 품목 조회
-} else if (isSaved && !isUpdate) {
-  saveBtn.style.display = "none";
-  delBtn.style.display = "none";
-  reBtn.style.display = "none";
-  webTitle.textContent = "품목상세";
-  title.textContent = "🐱 품목상세";
-  itemCode.disabled = true;
-  itemName.disabled = true;
-  // 수정
-} else if (isSaved && isUpdate) {
-  webTitle.textContent = "품목수정";
-  title.textContent = "🐱 품목수정";
-  itemCode.disabled = true;
-}
+/** 초기화 호출 */
+init();
