@@ -263,9 +263,7 @@ function printSale(sale) {
         <h2>거래명세서</h2>
         <table>
           <tr><th>전표일자/번호</th><td>${sale.slipCode}</td></tr>
-          <tr><th>품목코드</th><td>${sale.itemCode}</td></tr>
           <tr><th>품목명</th><td>${getItemName(sale.itemCode)}</td></tr>
-          <tr><th>거래처코드</th><td>${sale.custCode}</td></tr>
           <tr><th>거래처명</th><td>${
             JSON.parse(window.localStorage.getItem("cust-list")).find(
               (cust) => cust.custCode === sale.custCode
@@ -277,6 +275,10 @@ function printSale(sale) {
           ).toLocaleString()}</td></tr>
           <tr><th>단가</th><td>${parseInt(
             sale.price,
+            10
+          ).toLocaleString()}</td></tr>
+          <tr><th>금액</th><td>${parseInt(
+            sale.qty * sale.price,
             10
           ).toLocaleString()}</td></tr>
           <tr><th>적요</th><td>${sale.description}</td></tr>
