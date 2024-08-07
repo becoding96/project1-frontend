@@ -6,9 +6,14 @@ import { openPopup } from "../../util/open-pop-up.js";
 let currentPage = 1;
 const itemsPerPage = 10;
 let cachedItemList = [];
+const selectedIndices = new Set();
 
 /** 쿼리 params */
 const params = getUrlParams();
+const isSalesReg =
+  window.opener && window.opener.location.href.includes("sales-reg.html");
+const isSalesList =
+  window.opener && window.opener.location.href.includes("sales-list.html");
 
 /** 조회 조건 설정 */
 const searchItemCode = document.getElementById("search-item-code");
@@ -52,10 +57,7 @@ const nextBtn = new Button({
 const applyBtn = new Button({
   label: "적용",
   onClick: () => {
-    if (
-      window.opener &&
-      window.opener.location.href.includes("sales-reg.html")
-    ) {
+    if (isSalesReg) {
       const selectedCheckbox = document.querySelector(".item-checkbox:checked");
 
       if (selectedCheckbox) {
@@ -126,9 +128,31 @@ const closeBtn = new Button({
   id: "close-btn",
 }).render();
 
+const checkDelBtn = new Button({
+  label: "선택삭제",
+  onClick: () => {
+    const updatedItemList = cachedItemList.filter(
+      (item, index) => !selectedIndices.has(index)
+    );
+
+    cachedItemList = updatedItemList;
+    selectedIndices.clear();
+    window.localStorage.setItem("item-list", JSON.stringify(updatedItemList));
+    alert("선택된 항목이 삭제되었습니다.");
+
+    document.querySelector(
+      ".table2 thead input[type='checkbox']"
+    ).checked = false;
+    renderItemList();
+  },
+  id: "check-del-btn",
+}).render();
+
 document.getElementById("search-btn-div").appendChild(searchBtn);
 document.getElementById("next-prev-btn-div").append(prevBtn, nextBtn);
-document.getElementById("func-btn-div").append(applyBtn, newBtn, closeBtn);
+document
+  .getElementById("func-btn-div")
+  .append(applyBtn, newBtn, checkDelBtn, closeBtn);
 
 /** 조건에 맞는 아이템 리스트 불러오기 */
 function fetchAndCacheItemList() {
@@ -171,13 +195,31 @@ function renderItemList() {
   for (let i = startIndex; i < endIndex; i++) {
     const item = cachedItemList[i];
 
+    const tr = document.createElement("tr");
+
     const td1 = document.createElement("td");
     const input1 = document.createElement("input");
     input1.type = "checkbox";
     input1.classList.add("item-checkbox");
+    input1.dataset.index = i;
     input1.dataset.itemCode = item.itemCode;
     input1.dataset.itemName = item.itemName;
-    input1.addEventListener("change", handleCheckboxChange);
+    input1.checked = selectedIndices.has(i);
+    input1.addEventListener("change", (event) => {
+      if (event.target.checked) {
+        if (isSalesReg && selectedIndices.size >= 1) {
+          event.target.checked = false;
+          alert("최대 1개만 선택 가능합니다.");
+        } else if (isSalesList && selectedIndices.size >= 3) {
+          event.target.checked = false;
+          alert("최대 3개만 선택 가능합니다.");
+        } else {
+          selectedIndices.add(i);
+        }
+      } else {
+        selectedIndices.delete(i);
+      }
+    });
     td1.appendChild(input1);
     td1.classList.add("center");
 
@@ -213,7 +255,6 @@ function renderItemList() {
     td4.appendChild(a2);
     td4.classList.add("center");
 
-    const tr = document.createElement("tr");
     tr.append(td1);
     tr.append(td2);
     tr.append(td3);
@@ -225,25 +266,38 @@ function renderItemList() {
   document.getElementById("prev-btn").disabled = currentPage === 1;
   document.getElementById("next-btn").disabled =
     endIndex >= cachedItemList.length;
+
+  /** 테이블 헤더의 체크박스 클릭 시 모든 행 체크박스 선택, 해제 */
+  const headerCheckbox = document.querySelector(
+    ".table2 thead input[type='checkbox']"
+  );
+
+  headerCheckbox.onclick = (event) => {
+    const checkboxes = document.querySelectorAll(
+      ".table2 tbody input[type='checkbox']"
+    );
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = event.target.checked;
+      const index = parseInt(checkbox.dataset.index);
+      if (event.target.checked) {
+        selectedIndices.add(index);
+      } else {
+        selectedIndices.delete(index);
+      }
+    });
+  };
+
+  /** 헤더 체크박스 비활성화 */
+  if (isSalesReg || isSalesList) {
+    headerCheckbox.disabled = true;
+  } else {
+    document.getElementById("apply-btn").style.display = "none";
+  }
 }
 
 /** 품목 등록에서 사용할 수 있도록 전역화 */
 window.fetchAndCacheItemList = fetchAndCacheItemList;
 window.renderItemList = renderItemList;
-
-/** 체크박스 개수 통제 */
-function handleCheckboxChange(event) {
-  const maxSelection =
-    window.opener && window.opener.location.href.includes("sales-reg.html")
-      ? 1
-      : 3;
-  const checkboxes = document.querySelectorAll(".item-checkbox:checked");
-
-  if (checkboxes.length > maxSelection) {
-    event.target.checked = false;
-    alert(`최대 ${maxSelection}개만 선택 가능합니다.`);
-  }
-}
 
 /** 초기 조회 */
 fetchAndCacheItemList();
