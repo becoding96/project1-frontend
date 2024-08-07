@@ -452,5 +452,6 @@ window.searchCustDelete = searchCustDelete;
 /** 초기 조회 */
 fetchAndCacheSalesList();
 
+/** 홈 버튼 렌더링 */
 const homeButton = new HomeButton();
 homeButton.render();

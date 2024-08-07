@@ -304,5 +304,7 @@ window.renderCustList = renderCustList;
 fetchAndCacheCustList();
 
 /** 홈 버튼 렌더링 */
-const homeButton = new HomeButton();
-homeButton.render();
+if (!isSalesReg && !isSalesList) {
+  const homeButton = new HomeButton();
+  homeButton.render();
+}

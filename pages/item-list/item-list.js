@@ -311,5 +311,8 @@ window.renderItemList = renderItemList;
 /** 초기 조회 */
 fetchAndCacheItemList();
 
-const homeButton = new HomeButton();
-homeButton.render();
+/** 홈 버튼 렌더링 */
+if (!isSalesReg && !isSalesList) {
+  const homeButton = new HomeButton();
+  homeButton.render();
+}
