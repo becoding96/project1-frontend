@@ -1,4 +1,5 @@
 import { Button } from "../../components/Button.js";
+import { HomeButton } from "../../components/HomeButton.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
 
@@ -301,3 +302,7 @@ window.renderCustList = renderCustList;
 
 /** 초기 조회 */
 fetchAndCacheCustList();
+
+/** 홈 버튼 렌더링 */
+const homeButton = new HomeButton();
+homeButton.render();

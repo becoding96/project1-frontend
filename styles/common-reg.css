@@ -2,17 +2,6 @@
   width: 600px;
 }
 
-.row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: rgb(240, 240, 240);
-  height: 2rem;
-  padding: 0 0.25rem;
-  margin: 0 0 1px 0;
-}
-
 .row-title {
   padding: 0 0.25rem;
   height: 2rem;

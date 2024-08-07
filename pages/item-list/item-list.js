@@ -1,4 +1,5 @@
 import { Button } from "../../components/Button.js";
+import { HomeButton } from "../../components/HomeButton.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
 
@@ -63,9 +64,11 @@ const applyBtn = new Button({
       if (selectedCheckbox) {
         const itemCode = selectedCheckbox.dataset.itemCode;
         const itemName = selectedCheckbox.dataset.itemName;
+        const itemPrice = selectedCheckbox.dataset.itemPrice;
         window.opener.document.getElementById(
           "item-input"
         ).value = `${itemName} (${itemCode})`;
+        window.opener.document.getElementById("price").value = itemPrice;
         window.opener.document.getElementById("item-code").value = itemCode;
         window.close();
       } else {
@@ -204,6 +207,7 @@ function renderItemList() {
     input1.dataset.index = i;
     input1.dataset.itemCode = item.itemCode;
     input1.dataset.itemName = item.itemName;
+    input1.dataset.itemPrice = parseInt(item.itemPrice, 10);
     input1.checked = selectedIndices.has(i);
     input1.addEventListener("change", (event) => {
       if (event.target.checked) {
@@ -232,7 +236,7 @@ function renderItemList() {
         "../item-reg/item-reg.html",
         650,
         200,
-        `item-code=${item.itemCode}&item-name=${item.itemName}&save=true&update=false`
+        `item-code=${item.itemCode}&item-name=${item.itemName}&item-price=${item.itemPrice}&save=true&update=false`
       );
     };
     td2.appendChild(a1);
@@ -241,6 +245,9 @@ function renderItemList() {
     td3.textContent = item.itemName;
 
     const td4 = document.createElement("td");
+    td4.textContent = parseInt(item.itemPrice, 10).toLocaleString();
+
+    const td5 = document.createElement("td");
     const a2 = document.createElement("a");
     a2.href = "#";
     a2.textContent = "수정";
@@ -249,16 +256,17 @@ function renderItemList() {
         "../item-reg/item-reg.html",
         650,
         200,
-        `item-code=${item.itemCode}&item-name=${item.itemName}&save=true&update=true`
+        `item-code=${item.itemCode}&item-name=${item.itemName}&item-price=${item.itemPrice}&save=true&update=true`
       );
     };
-    td4.appendChild(a2);
-    td4.classList.add("center");
+    td5.appendChild(a2);
+    td5.classList.add("center");
 
     tr.append(td1);
     tr.append(td2);
     tr.append(td3);
     tr.append(td4);
+    tr.append(td5);
 
     itemDiv.append(tr);
   }
@@ -292,6 +300,7 @@ function renderItemList() {
     headerCheckbox.disabled = true;
   } else {
     document.getElementById("apply-btn").style.display = "none";
+    document.getElementById("close-btn").style.display = "none";
   }
 }
 
@@ -301,3 +310,6 @@ window.renderItemList = renderItemList;
 
 /** 초기 조회 */
 fetchAndCacheItemList();
+
+const homeButton = new HomeButton();
+homeButton.render();

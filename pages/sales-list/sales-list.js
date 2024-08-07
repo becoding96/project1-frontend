@@ -1,6 +1,7 @@
 import { openPopup } from "../../util/open-pop-up.js";
 import { getItemName } from "../../util/get-item-name.js";
 import { Button } from "../../components/Button.js";
+import { HomeButton } from "../../components/HomeButton.js";
 
 /** 페이지네이션 변수 */
 let currentPage = 1;
@@ -81,7 +82,7 @@ document.getElementById("func-btn-div").append(newBtn, checkDelBtn);
 
 /** 품목 선택 팝업 열기 */
 document.getElementById("item-code-help-img").onclick = () =>
-  openPopup("../item-list/item-list.html", 800, 600, "");
+  openPopup("../item-list/item-list.html", 900, 600, "");
 
 /** 거래처 선택 팝업 열기 */
 document.getElementById("cust-code-help-img").onclick = () =>
@@ -229,6 +230,12 @@ function renderSalesList() {
     const priceCell = document.createElement("td");
     priceCell.textContent = parseInt(sale.price, 10).toLocaleString();
     row.appendChild(priceCell);
+
+    const amountCell = document.createElement("td");
+    amountCell.textContent = (
+      parseInt(sale.price, 10) * parseInt(sale.qty, 10)
+    ).toLocaleString();
+    row.appendChild(amountCell);
 
     const descriptionCell = document.createElement("td");
     descriptionCell.textContent = sale.description;
@@ -444,3 +451,6 @@ window.searchCustDelete = searchCustDelete;
 
 /** 초기 조회 */
 fetchAndCacheSalesList();
+
+const homeButton = new HomeButton();
+homeButton.render();

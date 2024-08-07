@@ -8,6 +8,7 @@ const params = getUrlParams();
 const savedItem = {
   itemCode: params["item-code"],
   itemName: params["item-name"],
+  itemPrice: params["item-price"],
 };
 
 /** 저장 및 수정 여부 확인 */
@@ -18,9 +19,10 @@ const isUpdate = params["update"]
   ? JSON.parse(params["update"].toLowerCase())
   : false;
 
-/** 품목 코드, 명 */
+/** 품목 코드, 명, 단가 */
 const itemCode = document.getElementById("item-code");
 const itemName = document.getElementById("item-name");
+const itemPrice = document.getElementById("item-price");
 /** 페이지 타이틀 */
 const webTitle = document.getElementById("web-title");
 const title = document.getElementById("title");
@@ -68,6 +70,7 @@ if (!isSaved && !isUpdate) {
   title.textContent = "🐱 품목상세";
   itemCode.disabled = true;
   itemName.disabled = true;
+  itemPrice.disabled = true;
   /** 수정 */
 } else if (isSaved && isUpdate) {
   webTitle.textContent = "품목수정";
@@ -80,9 +83,11 @@ function init() {
   if (isSaved) {
     itemCode.value = savedItem.itemCode;
     itemName.value = savedItem.itemName;
+    itemPrice.value = savedItem.itemPrice;
   } else {
     itemCode.value = "";
     itemName.value = "";
+    itemPrice.value = "";
   }
 }
 
@@ -118,11 +123,12 @@ function clickSaveBtnHandler() {
   const formData = {
     itemCode: itemCode.value,
     itemName: itemName.value,
+    itemPrice: itemPrice.value,
     date: new Date(),
   };
 
   try {
-    if (itemCode.value && itemName && formData) {
+    if (itemCode.value && itemName.value && itemPrice.value && formData) {
       const itemList =
         JSON.parse(window.localStorage.getItem("item-list")) || [];
       const existingIndex = itemList.findIndex(

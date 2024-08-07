@@ -3,14 +3,7 @@
 }
 
 .row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: rgb(240, 240, 240);
   min-height: 2rem;
-  padding: 0 0.25rem;
-  margin: 0 0 1px 0;
 }
 
 .row-title {
@@ -71,7 +64,7 @@ option {
 }
 
 .table-div {
-  width: 1300px;
+  width: 1400px;
 }
 
 .code-help {
@@ -161,11 +154,16 @@ option {
 
 .table2 th:nth-child(9),
 .table2 td:nth-child(9) {
-  width: 21%;
+  width: 13%;
 }
 
 .table2 th:nth-child(10),
 .table2 td:nth-child(10) {
+  width: 20%;
+}
+
+.table2 th:nth-child(11),
+.table2 td:nth-child(11) {
   width: 4%;
 }
 
