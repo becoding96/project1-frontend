@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../styles/common.css" type="text/css" />
+    <link rel="stylesheet" href="sales-list.css" type="text/css" />
+    <title>판매조회</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="table">
+        <div class="title">🐱 판매조회</div>
+        <div class="row">
+          <span class="row-title">전표일자</span>
+          <div class="row-div">
+            <input type="date" id="slip-date-fr" />
+            <span>~</span>
+            <input type="date" id="slip-date-to" />
+          </div>
+        </div>
+        <div class="row" style="padding: 0.1rem 0.25rem">
+          <span class="row-title">품목</span>
+          <div class="row-input code-help">
+            <img
+              id="item-code-help-img"
+              class="code-help-img"
+              src="../../public/search.png"
+              alt="search"
+            />
+            <div id="item-div" class="code-help-div"></div>
+          </div>
+        </div>
+        <div class="row" style="padding: 0.1rem 0.25rem">
+          <span class="row-title">거래처</span>
+          <div class="row-input code-help">
+            <img
+              id="cust-code-help-img"
+              class="code-help-img"
+              src="../../public/search.png"
+              alt="search"
+            />
+            <div id="cust-div" class="code-help-div"></div>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-title">적요</span
+          ><input
+            type="text"
+            class="row-input"
+            placeholder="적요"
+            id="description"
+            style="min-height: 1.5rem"
+          />
+        </div>
+        <div class="row" style="display: none">
+          <span class="row-title">품목코드</span>
+          <div class="row-input code-help" id="item-code-div"></div>
+        </div>
+        <div class="row" style="display: none">
+          <span class="row-title">거래처코드</span>
+          <div class="row-input code-help" id="cust-code-div"></div>
+        </div>
+      </div>
+      <div class="btn-div" id="search-btn-div"></div>
+      <div class="table-div">
+        <div class="btn-div" id="next-prev-btn-div"></div>
+        <table class="table2">
+          <thead>
+            <tr>
+              <th class="center">
+                <input type="checkbox" />
+              </th>
+              <th>전표일자/번호</th>
+              <th>품목코드</th>
+              <th>품목명</th>
+              <th>거래처코드</th>
+              <th>거래처명</th>
+              <th>수량</th>
+              <th>단가</th>
+              <th>적요</th>
+              <th class="center">인쇄</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="btn-div" id="func-btn-div"></div>
+    </div>
+    <script src="sales-list.js" type="module"></script>
+  </body>
+</html>

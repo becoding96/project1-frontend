@@ -1,11 +1,12 @@
-import { openPopup } from "./util/open-pop-up.js";
-import { getItemName } from "./util/get-item-name.js";
-import { Button } from "./components/Button.js";
+import { openPopup } from "../../util/open-pop-up.js";
+import { getItemName } from "../../util/get-item-name.js";
+import { Button } from "../../components/Button.js";
 
 /** 페이지네이션 변수 */
 let currentPage = 1;
 const itemsPerPage = 10;
 let cachedSalesList = [];
+const selectedIndices = new Set();
 
 /** 버튼 생성 */
 const searchBtn = new Button({
@@ -49,7 +50,7 @@ const nextBtn = new Button({
 
 const newBtn = new Button({
   label: "신규",
-  onClick: () => openPopup("pages/sales-reg/sales-reg.html", 700, 300, ""),
+  onClick: () => openPopup("../sales-reg/sales-reg.html", 700, 300, ""),
   className: "blue-btn",
   id: "new-btn",
 }).render();
@@ -57,22 +58,12 @@ const newBtn = new Button({
 const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
-    const selectedCheckboxes = document.querySelectorAll(
-      ".table2 tbody input[type='checkbox']:checked"
+    const updatedSalesList = cachedSalesList.filter(
+      (sale, index) => !selectedIndices.has(index)
     );
 
-    if (selectedCheckboxes.length === 0) {
-      alert("삭제할 항목을 선택해주세요.");
-      return;
-    }
-
-    const updatedSalesList = cachedSalesList.filter((sale) => {
-      return !Array.from(selectedCheckboxes).some(
-        (checkbox) => checkbox.dataset.slipCode === sale.slipCode
-      );
-    });
-
     cachedSalesList = updatedSalesList;
+    selectedIndices.clear();
     window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
     alert("선택된 항목이 삭제되었습니다.");
 
@@ -90,11 +81,11 @@ document.getElementById("func-btn-div").append(newBtn, checkDelBtn);
 
 /** 품목 선택 팝업 열기 */
 document.getElementById("item-code-help-img").onclick = () =>
-  openPopup("pages/item-list/item-list.html", 800, 600, "");
+  openPopup("../item-list/item-list.html", 800, 600, "");
 
 /** 거래처 선택 팝업 열기 */
 document.getElementById("cust-code-help-img").onclick = () =>
-  openPopup("pages/cust-list/cust-list.html", 800, 600, "");
+  openPopup("../cust-list/cust-list.html", 800, 600, "");
 
 /** 테이블 헤더의 체크박스 클릭 시 모든 행 체크박스 선택/해제 */
 document.querySelector(".table2 thead input[type='checkbox']").onclick =
@@ -102,8 +93,15 @@ document.querySelector(".table2 thead input[type='checkbox']").onclick =
     const checkboxes = document.querySelectorAll(
       ".table2 tbody input[type='checkbox']"
     );
+
+    /** 페이지를 넘기더라도 체크는 유지되어야 함 */
     checkboxes.forEach((checkbox) => {
       checkbox.checked = event.target.checked;
+      if (event.target.checked) {
+        selectedIndices.add(parseInt(checkbox.dataset.index, 10));
+      } else {
+        selectedIndices.delete(parseInt(checkbox.dataset.index, 10));
+      }
     });
   };
 
@@ -175,7 +173,16 @@ function renderSalesList() {
     const checkboxCell = document.createElement("td");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
+    checkbox.dataset.index = i;
     checkbox.dataset.slipCode = sale.slipCode;
+    checkbox.checked = selectedIndices.has(i); // 체크 여부 다시 가져오기
+    checkbox.onclick = () => {
+      if (checkbox.checked) {
+        selectedIndices.add(i);
+      } else {
+        selectedIndices.delete(i);
+      }
+    };
     checkboxCell.appendChild(checkbox);
     checkboxCell.classList.add("center");
     row.appendChild(checkboxCell);
@@ -186,7 +193,7 @@ function renderSalesList() {
 
     slipCode.onclick = () =>
       openPopup(
-        "pages/sales-reg/sales-reg.html",
+        "../sales-reg/sales-reg.html",
         700,
         300,
         `slip-code=${sale.slipCode}&update=true`
@@ -384,7 +391,6 @@ function printSale(sale) {
     </script>
   </body>
 </html>
-
   `);
 
   printWindow.document.close();
