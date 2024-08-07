@@ -6,13 +6,6 @@
   min-height: 2rem;
 }
 
-.row-title {
-  padding: 0 0.25rem;
-  height: 2rem;
-  line-height: 2rem;
-  font-size: 0.8rem;
-}
-
 .row-div {
   display: grid;
   grid-template-columns: 4fr 1fr 4fr;
@@ -39,28 +32,6 @@
 
 .row-input {
   width: 60%;
-  padding: 0 0.25rem;
-  border: none;
-  outline: none;
-  font-size: 0.75rem;
-}
-
-.btn-div {
-  margin-top: 0.5rem;
-}
-
-.blue-btn {
-  border: 1px solid rgb(0, 58, 125);
-  background-color: rgb(0, 79, 168);
-  color: white;
-}
-
-.blue-btn:hover {
-  background-color: rgb(0, 70, 150);
-}
-
-option {
-  width: 248px;
 }
 
 .table-div {
@@ -74,8 +45,8 @@ option {
 }
 
 .code-help-img {
-  width: 22.2px;
-  height: 22.2px;
+  width: 24.2px;
+  height: 24.2px;
   background-color: rgb(201, 234, 255);
   border-radius: 1px;
   cursor: pointer;
@@ -98,7 +69,7 @@ option {
   padding: 0.1rem 0.25rem;
   font-size: 0.75rem;
   color: rgb(29, 101, 255);
-  height: 19px;
+  height: 21px;
   display: flex;
   align-items: center;
 }
@@ -112,6 +83,7 @@ option {
 .out-btn:hover {
   transform: scale(1.1);
 }
+
 .table2 th:nth-child(1),
 .table2 td:nth-child(1) {
   width: 2%;

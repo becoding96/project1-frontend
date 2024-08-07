@@ -2,30 +2,8 @@
   width: 800px;
 }
 
-.row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 2rem;
-  padding: 0 0.25rem;
-  margin: 0 0 1px 0;
-}
-
-.row-title {
-  padding: 0 0.25rem;
-  height: 2rem;
-  line-height: 2rem;
-  font-size: 0.8rem;
-}
-
 .row-input {
   width: 60%;
-  padding: 0 0.25rem;
-  height: 1.5rem;
-  border: none;
-  outline: none;
-  font-size: 0.75rem;
 }
 
 .table-div {
@@ -44,15 +22,15 @@
 
 .table2 th:nth-child(3),
 .table2 td:nth-child(3) {
-  width: 55%;
+  width: 40%;
 }
 
 .table2 th:nth-child(4),
 .table2 td:nth-child(4) {
-  width: 10%;
+  width: 15%;
 }
 
 .table2 th:nth-child(5),
 .table2 td:nth-child(5) {
-  width: 5%;
+  width: 10%;
 }
