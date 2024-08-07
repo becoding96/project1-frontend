@@ -63,7 +63,7 @@ itemInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     openPopup(
       "../item-list/item-list.html",
-      800,
+      900,
       600,
       `search=${encodeURIComponent(itemInput.value)}`
     );
@@ -71,7 +71,7 @@ itemInput.addEventListener("keydown", (event) => {
 });
 
 itemInput.addEventListener("dblclick", () => {
-  openPopup("../item-list/item-list.html", 800, 600, "");
+  openPopup("../item-list/item-list.html", 900, 600, "");
 });
 
 /** 거래처 입력 이벤트 리스너 추가 */
