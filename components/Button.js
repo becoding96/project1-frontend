@@ -21,7 +21,6 @@ export class Button {
     style.textContent = `
       .btn {
         padding: 0.25rem 1rem;
-        border-radius: none;
         border: 1px solid rgb(150, 150, 150);
         background-color: rgb(240, 240, 240);
         font-size: 0.8rem;
@@ -42,6 +41,16 @@ export class Button {
 
       .blue-btn:hover {
         background-color: rgb(0, 70, 150);
+      }
+
+      .page-btn {
+        border: none;
+        border-radius: 100%;
+        padding: 0.1rem;
+        width: 25px;
+        height: 25px;
+        font-size: 0.6rem;
+        font-weight: bold;
       }
     `;
     document.head.appendChild(style);

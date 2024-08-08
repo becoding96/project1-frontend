@@ -39,7 +39,7 @@
 
 .code-help {
   display: flex;
-  width: calc(60% + 5px);
+  width: 60%;
   padding: 3px;
   height: auto;
 }

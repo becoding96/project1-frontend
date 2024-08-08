@@ -2,12 +2,12 @@ import { Button } from "../../components/Button.js";
 import { HomeButton } from "../../components/HomeButton.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
+import { usePagination } from "../../hooks/usePagination.js";
 
-/** 페이지네이션 변수 */
-let currentPage = 1;
-const itemsPerPage = 10;
 let cachedItemList = [];
 const selectedIndices = new Set();
+const itemsPerPage = 10;
+let pagination;
 
 /** 쿼리 params */
 const params = getUrlParams();
@@ -25,34 +25,51 @@ searchItemCode.value = params.search || "";
 const searchBtn = new Button({
   label: "검색",
   onClick: () => {
-    currentPage = 1;
+    pagination.reset();
     fetchAndCacheItemList();
   },
   className: "blue-btn",
   id: "search-btn",
 }).render();
 
-const prevBtn = new Button({
-  label: "이전",
+const firstBtn = new Button({
+  label: "<<",
   onClick: () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderItemList();
-    }
+    pagination.setPage(1);
+    renderItemList();
   },
+  className: "page-btn",
+  id: "first-btn",
+}).render();
+
+const prevBtn = new Button({
+  label: "<",
+  onClick: () => {
+    pagination.prevPage();
+    renderItemList();
+  },
+  className: "page-btn",
   id: "prev-btn",
 }).render();
 
 const nextBtn = new Button({
-  label: "다음",
+  label: ">",
   onClick: () => {
-    const totalPages = Math.ceil(cachedItemList.length / itemsPerPage);
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderItemList();
-    }
+    pagination.nextPage();
+    renderItemList();
   },
+  className: "page-btn",
   id: "next-btn",
+}).render();
+
+const lastBtn = new Button({
+  label: ">>",
+  onClick: () => {
+    pagination.setPage(pagination.getTotalPages());
+    renderItemList();
+  },
+  className: "page-btn",
+  id: "last-btn",
 }).render();
 
 const applyBtn = new Button({
@@ -145,7 +162,8 @@ const checkDelBtn = new Button({
     document.querySelector(
       ".table2 thead input[type='checkbox']"
     ).checked = false;
-    renderItemList();
+
+    fetchAndCacheItemList();
   },
   id: "check-del-btn",
 }).render();
@@ -173,6 +191,9 @@ function fetchAndCacheItemList() {
     );
   });
 
+  const oldPage = pagination ? pagination.getCurrentPage() : 1;
+  pagination = usePagination(cachedItemList, itemsPerPage);
+  pagination.setPage(oldPage);
   renderItemList();
 }
 
@@ -181,34 +202,22 @@ function renderItemList() {
   const itemDiv = document.getElementById("item-div");
   itemDiv.innerHTML = "";
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, cachedItemList.length);
+  const paginatedData = pagination.getPaginatedData();
 
-  /** 데이터가 하나도 없으면 이전 페이지로 */
-  /** 삭제 이후 렌더링 로직 */
-  if (startIndex === endIndex) {
-    if (currentPage > 1) {
-      currentPage--;
-      renderItemList();
-    }
-    return;
-  }
-
-  for (let i = startIndex; i < endIndex; i++) {
-    const item = cachedItemList[i];
-
+  paginatedData.forEach((item, i) => {
     const tr = document.createElement("tr");
 
     const td1 = document.createElement("td");
     const input1 = document.createElement("input");
     input1.type = "checkbox";
     input1.classList.add("item-checkbox");
-    input1.dataset.index = i;
+    input1.dataset.index = pagination.getCurrentPageIndex(i);
     input1.dataset.itemCode = item.itemCode;
     input1.dataset.itemName = item.itemName;
     input1.dataset.itemPrice = parseInt(item.itemPrice, 10);
-    input1.checked = selectedIndices.has(i);
+    input1.checked = selectedIndices.has(pagination.getCurrentPageIndex(i));
     input1.addEventListener("change", (event) => {
+      const index = parseInt(event.target.dataset.index, 10);
       if (event.target.checked) {
         if (isSalesReg && selectedIndices.size >= 1) {
           event.target.checked = false;
@@ -217,10 +226,10 @@ function renderItemList() {
           event.target.checked = false;
           alert("최대 3개만 선택 가능합니다.");
         } else {
-          selectedIndices.add(i);
+          selectedIndices.add(index);
         }
       } else {
-        selectedIndices.delete(i);
+        selectedIndices.delete(index);
       }
     });
     td1.appendChild(input1);
@@ -268,24 +277,18 @@ function renderItemList() {
     tr.append(td5);
 
     itemDiv.append(tr);
-  }
+  });
 
-  document.getElementById("prev-btn").disabled = currentPage === 1;
-  document.getElementById("next-btn").disabled =
-    endIndex >= cachedItemList.length;
-
-  /** 테이블 헤더의 체크박스 클릭 시 모든 행 체크박스 선택, 해제 */
   const headerCheckbox = document.querySelector(
     ".table2 thead input[type='checkbox']"
   );
-
   headerCheckbox.onclick = (event) => {
     const checkboxes = document.querySelectorAll(
       ".table2 tbody input[type='checkbox']"
     );
     checkboxes.forEach((checkbox) => {
+      const index = parseInt(checkbox.dataset.index, 10);
       checkbox.checked = event.target.checked;
-      const index = parseInt(checkbox.dataset.index);
       if (event.target.checked) {
         selectedIndices.add(index);
       } else {
@@ -294,13 +297,47 @@ function renderItemList() {
     });
   };
 
-  /** 헤더 체크박스 비활성화 */
   if (isSalesReg || isSalesList) {
     headerCheckbox.disabled = true;
   } else {
     document.getElementById("apply-btn").style.display = "none";
     document.getElementById("close-btn").style.display = "none";
   }
+
+  renderPaginationButtons();
+}
+
+/** 페이지네이션 버튼 렌더링 */
+function renderPaginationButtons() {
+  const paginationDiv = document.getElementById("next-prev-btn-div");
+  paginationDiv.innerHTML = "";
+
+  const visiblePages = pagination.getVisiblePageNumbers();
+
+  paginationDiv.append(firstBtn, prevBtn);
+
+  visiblePages.forEach((pageNumber) => {
+    const pageButton = new Button({
+      label: pageNumber.toString(),
+      onClick: () => {
+        pagination.setPage(pageNumber);
+        renderItemList();
+      },
+      className:
+        pageNumber === pagination.getCurrentPage()
+          ? "page-btn blue-btn"
+          : "page-btn",
+    }).render();
+
+    paginationDiv.appendChild(pageButton);
+  });
+
+  paginationDiv.append(nextBtn, lastBtn);
+
+  document.getElementById("prev-btn").disabled =
+    pagination.getCurrentPage() === 1;
+  document.getElementById("next-btn").disabled =
+    pagination.getCurrentPage() >= pagination.getTotalPages();
 }
 
 /** 품목 등록에서 사용할 수 있도록 전역화 */
