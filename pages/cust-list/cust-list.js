@@ -191,7 +191,9 @@ function fetchAndCacheCustList() {
 
   const oldPage = pagination ? pagination.getCurrentPage() : 1;
   pagination = usePagination(cachedCustList, itemsPerPage);
-  pagination.setPage(oldPage);
+  pagination.setPage(
+    oldPage > pagination.getTotalPages() ? pagination.getTotalPages() : oldPage
+  );
   renderCustList();
 }
 

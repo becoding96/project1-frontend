@@ -159,7 +159,9 @@ function fetchAndCacheSalesList() {
 
   const oldPage = pagination ? pagination.getCurrentPage() : 1;
   pagination = usePagination(cachedSalesList, itemsPerPage);
-  pagination.setPage(oldPage);
+  pagination.setPage(
+    oldPage > pagination.getTotalPages() ? pagination.getTotalPages() : oldPage
+  );
   renderSalesList();
 }
 

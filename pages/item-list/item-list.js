@@ -193,7 +193,9 @@ function fetchAndCacheItemList() {
 
   const oldPage = pagination ? pagination.getCurrentPage() : 1;
   pagination = usePagination(cachedItemList, itemsPerPage);
-  pagination.setPage(oldPage);
+  pagination.setPage(
+    oldPage > pagination.getTotalPages() ? pagination.getTotalPages() : oldPage
+  );
   renderItemList();
 }
 

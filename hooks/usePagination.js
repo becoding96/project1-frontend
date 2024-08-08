@@ -7,7 +7,15 @@ export function usePagination(data, itemsPerPage) {
 
   const getPaginatedData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return data.slice(startIndex, startIndex + itemsPerPage);
+    const paginatedData = data.slice(startIndex, startIndex + itemsPerPage);
+
+    // 데이터가 없으면 이전 페이지로 이동
+    if (paginatedData.length === 0 && currentPage > 1) {
+      currentPage--;
+      return getPaginatedData();
+    }
+
+    return paginatedData;
   };
 
   const nextPage = () => {
