@@ -58,12 +58,15 @@ const nextBtn = new Button({
 const applyBtn = new Button({
   label: "적용",
   onClick: () => {
-    if (isSalesReg) {
-      const selectedCheckbox = document.querySelector(".cust-checkbox:checked");
+    const selectedCusts = Array.from(selectedIndices).map(
+      (index) => cachedCustList[index]
+    );
 
-      if (selectedCheckbox) {
-        const custCode = selectedCheckbox.dataset.custCode;
-        const custName = selectedCheckbox.dataset.custName;
+    if (isSalesReg) {
+      if (selectedCusts.length === 1) {
+        const cust = selectedCusts[0];
+        const custCode = cust.custCode;
+        const custName = cust.custName;
         window.opener.document.getElementById(
           "cust-input"
         ).value = `${custName} (${custCode})`;
@@ -73,11 +76,7 @@ const applyBtn = new Button({
         alert("거래처를 선택해주세요.");
       }
     } else {
-      const selectedCheckboxList = document.querySelectorAll(
-        ".cust-checkbox:checked"
-      );
-
-      if (selectedCheckboxList) {
+      if (selectedCusts.length > 0) {
         const custDiv = window.opener.document.getElementById("cust-div");
         custDiv.innerHTML = "";
 
@@ -85,9 +84,9 @@ const applyBtn = new Button({
           window.opener.document.getElementById("cust-code-div");
         custCodeDiv.innerHTML = "";
 
-        selectedCheckboxList.forEach((selectedCheckbox) => {
-          const custCode = selectedCheckbox.dataset.custCode;
-          const custName = selectedCheckbox.dataset.custName;
+        selectedCusts.forEach((cust) => {
+          const custCode = cust.custCode;
+          const custName = cust.custName;
 
           const custSpan = document.createElement("span");
           custSpan.textContent = `${custName} (${custCode})`;
@@ -123,6 +122,12 @@ const newBtn = new Button({
   id: "new-btn",
 }).render();
 
+const closeBtn = new Button({
+  label: "닫기",
+  onClick: () => window.close(),
+  id: "close-btn",
+}).render();
+
 const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
@@ -141,12 +146,6 @@ const checkDelBtn = new Button({
     renderCustList();
   },
   id: "check-del-btn",
-}).render();
-
-const closeBtn = new Button({
-  label: "닫기",
-  onClick: () => window.close(),
-  id: "close-btn",
 }).render();
 
 document.getElementById("search-btn-div").appendChild(searchBtn);
@@ -293,6 +292,7 @@ function renderCustList() {
     headerCheckbox.disabled = true;
   } else {
     document.getElementById("apply-btn").style.display = "none";
+    document.getElementById("close-btn").style.display = "none";
   }
 }
 

@@ -58,13 +58,16 @@ const nextBtn = new Button({
 const applyBtn = new Button({
   label: "적용",
   onClick: () => {
-    if (isSalesReg) {
-      const selectedCheckbox = document.querySelector(".item-checkbox:checked");
+    const selectedItems = Array.from(selectedIndices).map(
+      (index) => cachedItemList[index]
+    );
 
-      if (selectedCheckbox) {
-        const itemCode = selectedCheckbox.dataset.itemCode;
-        const itemName = selectedCheckbox.dataset.itemName;
-        const itemPrice = selectedCheckbox.dataset.itemPrice;
+    if (isSalesReg) {
+      if (selectedItems.length === 1) {
+        const item = selectedItems[0];
+        const itemCode = item.itemCode;
+        const itemName = item.itemName;
+        const itemPrice = parseInt(item.itemPrice, 10);
         window.opener.document.getElementById(
           "item-input"
         ).value = `${itemName} (${itemCode})`;
@@ -75,11 +78,7 @@ const applyBtn = new Button({
         alert("품목을 선택해주세요.");
       }
     } else {
-      const selectedCheckboxList = document.querySelectorAll(
-        ".item-checkbox:checked"
-      );
-
-      if (selectedCheckboxList) {
+      if (selectedItems.length > 0) {
         const itemDiv = window.opener.document.getElementById("item-div");
         itemDiv.innerHTML = "";
 
@@ -87,9 +86,9 @@ const applyBtn = new Button({
           window.opener.document.getElementById("item-code-div");
         itemCodeDiv.innerHTML = "";
 
-        selectedCheckboxList.forEach((selectedCheckbox) => {
-          const itemCode = selectedCheckbox.dataset.itemCode;
-          const itemName = selectedCheckbox.dataset.itemName;
+        selectedItems.forEach((item) => {
+          const itemCode = item.itemCode;
+          const itemName = item.itemName;
 
           const itemSpan = document.createElement("span");
           itemSpan.textContent = `${itemName} (${itemCode})`;

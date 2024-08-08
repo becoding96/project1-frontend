@@ -3,7 +3,7 @@
 }
 
 .row {
-  min-height: 2rem;
+  height: auto;
 }
 
 .row-div {
@@ -18,7 +18,6 @@
 
 .row-div > span {
   text-align: center;
-  line-height: 1.5rem;
   font-size: 1rem;
 }
 
@@ -41,7 +40,8 @@
 .code-help {
   display: flex;
   width: calc(60% + 5px);
-  padding: 3px 0 3px 3px;
+  padding: 3px;
+  height: auto;
 }
 
 .code-help-img {
@@ -69,7 +69,7 @@
   padding: 0.1rem 0.25rem;
   font-size: 0.75rem;
   color: rgb(29, 101, 255);
-  height: 21px;
+  min-height: 21px;
   display: flex;
   align-items: center;
 }
