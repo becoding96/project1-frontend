@@ -17,11 +17,15 @@
         </div>
         <div class="row">
           <span class="row-title">품목</span>
-          <input type="text" class="row-input code-help" id="item-input" />
+          <div class="row-input code-help" id="item-code-help">
+            <input type="text" id="item-input" />
+          </div>
         </div>
         <div class="row">
           <span class="row-title">거래처</span>
-          <input type="text" class="row-input code-help" id="cust-input" />
+          <div class="row-input code-help" id="cust-code-help">
+            <input type="text" id="cust-input" />
+          </div>
         </div>
         <div class="row">
           <span class="row-title">수량</span>
@@ -43,25 +47,6 @@
             class="row-input"
             placeholder="적요"
             id="description"
-          />
-        </div>
-        <!-- 저장은 코드만 -->
-        <div class="row" style="display: none">
-          <span class="row-title">품목코드</span>
-          <input
-            type="text"
-            class="row-input"
-            placeholder="품목코드"
-            id="item-code"
-          />
-        </div>
-        <div class="row" style="display: none">
-          <span class="row-title">거래처코드</span>
-          <input
-            type="text"
-            class="row-input"
-            placeholder="거래처코드"
-            id="cust-code"
           />
         </div>
       </div>

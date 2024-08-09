@@ -1,7 +1,7 @@
 import { getItemName } from "../../util/get-item-name.js";
 import { getUrlParams } from "../../util/get-url-params.js";
-import { openPopup } from "../../util/open-pop-up.js";
 import { Button } from "../../components/Button.js";
+import { CodeHelp } from "../../components/CodeHelp.js";
 
 /** URL 파라미터 */
 const params = getUrlParams();
@@ -25,8 +25,33 @@ const custInput = document.getElementById("cust-input");
 const qty = document.getElementById("qty");
 const price = document.getElementById("price");
 const description = document.getElementById("description");
-const itemCode = document.getElementById("item-code");
-const custCode = document.getElementById("cust-code");
+
+/** CodeHelp 인스턴스 생성 */
+const itemCodeHelp = new CodeHelp({
+  inputId: "item-input",
+  helpDivId: "item-code-help",
+  maxItems: 1,
+  mode: "item",
+  searchFunction: (searchTerm) => {
+    const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
+    return itemList.filter((item) =>
+      item.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
+});
+
+const custCodeHelp = new CodeHelp({
+  inputId: "cust-input",
+  helpDivId: "cust-code-help",
+  maxItems: 1,
+  mode: "cust",
+  searchFunction: (searchTerm) => {
+    const custList = JSON.parse(window.localStorage.getItem("cust-list")) || [];
+    return custList.filter((cust) =>
+      cust.custCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
+});
 
 /** 버튼 생성 */
 const saveBtn = new Button({
@@ -58,38 +83,6 @@ document
   .getElementById("button-container")
   .append(saveBtn, delBtn, reBtn, closeBtn);
 
-/** 품목 입력 이벤트 리스너 추가 */
-itemInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    openPopup(
-      "../item-list/item-list.html",
-      900,
-      600,
-      `search=${encodeURIComponent(itemInput.value)}`
-    );
-  }
-});
-
-itemInput.addEventListener("dblclick", () => {
-  openPopup("../item-list/item-list.html", 900, 600, "");
-});
-
-/** 거래처 입력 이벤트 리스너 추가 */
-custInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    openPopup(
-      "../cust-list/cust-list.html",
-      800,
-      600,
-      `search=${encodeURIComponent(custInput.value)}`
-    );
-  }
-});
-
-custInput.addEventListener("dblclick", () => {
-  openPopup("../cust-list/cust-list.html", 800, 600, "");
-});
-
 /** 업데이트 모드 설정 */
 if (isUpdate) {
   document.getElementById("web-title").textContent = "판매수정";
@@ -97,24 +90,6 @@ if (isUpdate) {
   slipDate.type = "text";
   slipDate.value = savedSale.slipCode;
   slipDate.disabled = true;
-
-  const itemName =
-    JSON.parse(window.localStorage.getItem("item-list")).find(
-      (item) => item.itemCode === savedSale.itemCode
-    )?.itemName || "";
-
-  const custName =
-    JSON.parse(window.localStorage.getItem("cust-list")).find(
-      (cust) => cust.custCode === savedSale.custCode
-    )?.custName || "";
-
-  itemInput.value = `${savedSale.itemCode} (${itemName})`;
-  custInput.value = `${savedSale.custCode} (${custName})`;
-  itemCode.value = savedSale.itemCode;
-  custCode.value = savedSale.custCode;
-  qty.value = savedSale.qty;
-  price.value = savedSale.price;
-  description.value = savedSale.description;
 } else {
   delBtn.style.display = "none";
 }
@@ -123,8 +98,8 @@ if (isUpdate) {
 function clickSaveBtnHandler() {
   if (
     !slipDate.value ||
-    !itemCode.value ||
-    !custCode.value ||
+    !document.querySelector("#item-code-help span") ||
+    !document.querySelector("#cust-code-help span") ||
     !qty.value ||
     !price.value ||
     !description.value
@@ -133,13 +108,16 @@ function clickSaveBtnHandler() {
     return;
   }
 
+  const itemCode = document.querySelector("#item-code-help span").dataset.code;
+  const custCode = document.querySelector("#cust-code-help span").dataset.code;
+
   if (isUpdate) {
     try {
       const formData = {
         slipCode: savedSale.slipCode,
         slipDate: savedSale.slipDate,
-        itemCode: itemCode.value,
-        custCode: custCode.value,
+        itemCode,
+        custCode,
         qty: qty.value,
         price: price.value,
         description: description.value,
@@ -191,8 +169,8 @@ function clickSaveBtnHandler() {
       const formData = {
         slipCode: slipDate.value + "-" + (maxNo + 1),
         slipDate: slipDate.value,
-        itemCode: itemCode.value,
-        custCode: custCode.value,
+        itemCode,
+        custCode,
         qty: qty.value,
         price: price.value,
         description: description.value,
@@ -238,26 +216,35 @@ function clickDelBtnHandler() {
 /** 초기화 함수 */
 function init() {
   if (isUpdate) {
-    slipDate.value = savedSale.slipDate;
-    itemInput.value = `${getItemName(savedSale.itemCode)} (${
-      savedSale.itemCode
-    })`;
-    itemCode.value = savedSale.itemCode;
+    const itemName =
+      JSON.parse(window.localStorage.getItem("item-list")).find(
+        (item) => item.itemCode === savedSale.itemCode
+      )?.itemName || "";
+
     const custName =
       JSON.parse(window.localStorage.getItem("cust-list")).find(
         (cust) => cust.custCode === savedSale.custCode
       )?.custName || "";
-    custInput.value = `${savedSale.custCode} (${custName})`;
-    custCode.value = savedSale.custCode;
+
+    itemCodeHelp.clear();
+    itemCodeHelp.addItem({
+      itemCode: savedSale.itemCode,
+      itemName: itemName,
+    });
+
+    custCodeHelp.clear();
+    custCodeHelp.addItem({
+      custCode: savedSale.custCode,
+      custName: custName,
+    });
+
     qty.value = savedSale.qty;
     price.value = savedSale.price;
     description.value = savedSale.description;
   } else {
     slipDate.value = "";
     itemInput.value = "";
-    itemCode.value = "";
     custInput.value = "";
-    custCode.value = "";
     qty.value = "";
     price.value = "";
     description.value = "";
@@ -268,6 +255,19 @@ function init() {
 document.getElementById("close-btn").onclick = () => {
   window.close();
 };
+
+/** 품목 조회 조건의 품목 아이템 클릭 시 삭제 */
+function inputItemDelete() {
+  const outBtnList = document.querySelectorAll(".item-out-btn");
+
+  outBtnList.forEach((outBtn) => {
+    outBtn.onclick = () => {
+      outBtn.parentNode.remove();
+    };
+  });
+}
+
+window.inputItemDelete = inputItemDelete;
 
 /** 초기화 호출 */
 init();

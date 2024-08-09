@@ -30,8 +30,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 2rem;
-  padding: 0 0.25rem;
+  min-height: 1.5rem;
+  padding: 3px;
   margin: 0 0 1px 0;
   border: 1px solid rgb(150, 150, 150);
   background-color: rgb(245, 245, 245);
@@ -39,14 +39,13 @@ body {
 
 .row-title {
   padding: 0 0.25rem;
-  height: 2rem;
-  line-height: 2rem;
   font-size: 0.8rem;
 }
 
 .row-input {
+  width: 60%;
   padding: 0 0.25rem;
-  height: 1.5rem;
+  min-height: 1.5rem;
   border: none;
   outline: none;
   font-size: 0.75rem;
@@ -111,6 +110,55 @@ input::-webkit-inner-spin-button {
 }
 
 .code-help {
+  display: flex;
+  flex-wrap: wrap;
   border: 1px solid skyblue !important;
   background-color: rgb(239, 250, 255);
+  width: calc(60% - 27px);
+  height: unset;
+  min-height: 1.2rem;
+  padding: 5px 5px 5px 30px;
+  background-image: url(../../public/search.png);
+  background-position: 2px center;
+  background-size: 23px 23px;
+  background-repeat: no-repeat;
+  gap: 5px;
+}
+
+.code-help input {
+  background-color: inherit;
+  border: none;
+  border-radius: 5px;
+  width: 30%;
+  height: 1.2rem;
+  margin-right: 5px;
+  padding: 0.1rem 0.25rem 0.1rem 0.5rem;
+}
+
+.code-help > span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.1rem 0.25rem 0.1rem 0.5rem;
+  border: none;
+  border-radius: 5px;
+  min-height: 1.2rem;
+  margin-right: 5px;
+  background-color: rgb(196, 236, 255);
+  color: rgb(0, 76, 255);
+}
+
+.code-help input:focus {
+  outline: none;
+  box-shadow: 0px 0px 5px inset rgb(143, 190, 255);
+}
+
+.out-btn {
+  margin: 0 2px 0 8px;
+  font-size: 0.6rem;
+  cursor: pointer;
+}
+
+.out-btn:hover {
+  transform: scale(1.1);
 }

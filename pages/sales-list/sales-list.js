@@ -3,11 +3,40 @@ import { getItemName } from "../../util/get-item-name.js";
 import { Button } from "../../components/Button.js";
 import { HomeButton } from "../../components/HomeButton.js";
 import { usePagination } from "../../hooks/usePagination.js";
+import { useCheckbox } from "../../hooks/useCheckbox.js";
+import { CodeHelp } from "../../components/CodeHelp.js";
 
 let cachedSalesList = [];
-const selectedIndices = new Set();
 const itemsPerPage = 10;
 let pagination;
+const checkboxHandler = useCheckbox("sales");
+
+/** CodeHelp 인스턴스 생성 */
+const itemCodeHelp = new CodeHelp({
+  inputId: "item-input",
+  helpDivId: "item-code-help",
+  maxItems: 3,
+  mode: "item",
+  searchFunction: (searchTerm) => {
+    const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
+    return itemList.filter((item) =>
+      item.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
+});
+
+const custCodeHelp = new CodeHelp({
+  inputId: "cust-input",
+  helpDivId: "cust-code-help",
+  maxItems: 3,
+  mode: "cust",
+  searchFunction: (searchTerm) => {
+    const custList = JSON.parse(window.localStorage.getItem("cust-list")) || [];
+    return custList.filter((cust) =>
+      cust.custCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
+});
 
 /** 버튼 생성 */
 const searchBtn = new Button({
@@ -71,17 +100,19 @@ const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
     const updatedSalesList = cachedSalesList.filter(
-      (sale, index) => !selectedIndices.has(index)
+      (sale, index) => !checkboxHandler.getSelectedIndices().has(index)
     );
 
     cachedSalesList = updatedSalesList;
-    selectedIndices.clear();
+    checkboxHandler.getSelectedIndices().clear();
     window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
     alert("선택된 항목이 삭제되었습니다.");
 
     document.querySelector(
       ".table2 thead input[type='checkbox']"
     ).checked = false;
+
+    document.getElementById("checked-div").innerHTML = "";
 
     fetchAndCacheSalesList();
   },
@@ -92,50 +123,25 @@ document.getElementById("search-btn-div").appendChild(searchBtn);
 document.getElementById("next-prev-btn-div").append(prevBtn, nextBtn);
 document.getElementById("func-btn-div").append(newBtn, checkDelBtn);
 
-/** 품목 선택 팝업 열기 */
-document.getElementById("item-code-help-img").onclick = () =>
-  openPopup("../item-list/item-list.html", 900, 600, "");
-
-/** 거래처 선택 팝업 열기 */
-document.getElementById("cust-code-help-img").onclick = () =>
-  openPopup("../cust-list/cust-list.html", 800, 600, "");
-
-/** 테이블 헤더의 체크박스 클릭 시 모든 행 체크박스 선택/해제 */
-document.querySelector(".table2 thead input[type='checkbox']").onclick =
-  function (event) {
-    const checkboxes = document.querySelectorAll(
-      ".table2 tbody input[type='checkbox']"
-    );
-
-    /** 페이지를 넘기더라도 체크는 유지되어야 함 */
-    checkboxes.forEach((checkbox) => {
-      const index = parseInt(checkbox.dataset.index, 10);
-      checkbox.checked = event.target.checked;
-      if (event.target.checked) {
-        selectedIndices.add(index);
-      } else {
-        selectedIndices.delete(index);
-      }
-    });
-  };
-
 /** 판매 리스트 가져와서 캐시하는 함수 */
 function fetchAndCacheSalesList() {
-  const sItemCodeDiv = document.getElementById("item-code-div");
-  const sCustCodeDiv = document.getElementById("cust-code-div");
+  const sItemCodeDiv = document.getElementById("item-code-help");
+  const sCustCodeDiv = document.getElementById("cust-code-help");
   const sSlipDateFr = document.getElementById("slip-date-fr");
   const sSlipDateTo = document.getElementById("slip-date-to");
   const sDescription = document.getElementById("description");
 
   const sItemSet = new Set(
-    Array.from(sItemCodeDiv.querySelectorAll("span")).map((sItem) => {
-      return sItem.textContent;
+    Array.from(sItemCodeDiv.querySelectorAll(".item-span")).map((sItem) => {
+      return sItem.dataset.code;
     })
   );
 
+  console.log(sItemSet);
+
   const sCustSet = new Set(
-    Array.from(sCustCodeDiv.querySelectorAll("span")).map((sCust) => {
-      return sCust.textContent;
+    Array.from(sCustCodeDiv.querySelectorAll(".cust-span")).map((sCust) => {
+      return sCust.dataset.code;
     })
   );
 
@@ -180,14 +186,16 @@ function renderSalesList() {
     checkbox.type = "checkbox";
     checkbox.dataset.index = pagination.getCurrentPageIndex(i);
     checkbox.dataset.slipCode = sale.slipCode;
-    checkbox.checked = selectedIndices.has(pagination.getCurrentPageIndex(i));
+    checkbox.checked = checkboxHandler.isChecked(
+      pagination.getCurrentPageIndex(i)
+    );
     checkbox.onclick = (event) => {
       const index = parseInt(event.target.dataset.index, 10);
-      if (checkbox.checked) {
-        selectedIndices.add(index);
-      } else {
-        selectedIndices.delete(index);
-      }
+      checkboxHandler.toggleCheckbox(
+        index,
+        event.target.checked,
+        cachedSalesList
+      );
     };
     checkboxCell.appendChild(checkbox);
     checkboxCell.classList.add("center");
@@ -258,23 +266,11 @@ function renderSalesList() {
     salesTableBody.appendChild(row);
   });
 
-  const headerCheckbox = document.querySelector(
-    ".table2 thead input[type='checkbox']"
+  checkboxHandler.handleHeaderCheckboxClick(
+    ".table2 thead input[type='checkbox']",
+    ".table2 tbody input[type='checkbox']",
+    cachedSalesList
   );
-  headerCheckbox.onclick = (event) => {
-    const checkboxes = document.querySelectorAll(
-      ".table2 tbody input[type='checkbox']"
-    );
-    checkboxes.forEach((checkbox) => {
-      const index = parseInt(checkbox.dataset.index, 10);
-      checkbox.checked = event.target.checked;
-      if (event.target.checked) {
-        selectedIndices.add(index);
-      } else {
-        selectedIndices.delete(index);
-      }
-    });
-  };
 
   if (document.getElementById("item-code-help-img")) {
     document.getElementById("item-code-help-img").onclick = () =>
@@ -422,13 +418,11 @@ function printSale(sale) {
       </tr>
       <tr class="single-row">
         <th>거래처</th>
-        <td colspan="5">
-          ${
-            JSON.parse(window.localStorage.getItem("cust-list")).find(
-              (cust) => cust.custCode === sale.custCode
-            )?.custName || ""
-          }
-        </td>
+        <td colspan="5">${
+          JSON.parse(window.localStorage.getItem("cust-list")).find(
+            (cust) => cust.custCode === sale.custCode
+          )?.custName || ""
+        }</td>
       </tr>
       <tr>
         <th>전표일자</th>
@@ -442,11 +436,9 @@ function printSale(sale) {
         <td colspan="2">${getItemName(sale.itemCode)}</td>
         <td>${parseInt(sale.qty, 10).toLocaleString()}</td>
         <td>${parseInt(sale.price, 10).toLocaleString()}</td>
-        <td>
-          ${(
-            parseInt(sale.qty, 10) * parseInt(sale.price, 10)
-          ).toLocaleString()}
-        </td>
+        <td>${(
+          parseInt(sale.qty, 10) * parseInt(sale.price, 10)
+        ).toLocaleString()}</td>
       </tr>
       <tr class="single-row">
         <th>적요</th>
@@ -470,19 +462,10 @@ function printSale(sale) {
 /** 품목 조회 조건의 품목 아이템 클릭 시 삭제 */
 function searchItemDelete() {
   const outBtnList = document.querySelectorAll(".item-out-btn");
-  const itemCodeSpanList = document
-    .getElementById("item-code-div")
-    .querySelectorAll("span");
 
   outBtnList.forEach((outBtn) => {
     outBtn.onclick = () => {
       outBtn.parentNode.remove();
-
-      itemCodeSpanList.forEach((itemCodeSpan) => {
-        if (itemCodeSpan.textContent === outBtn.dataset.itemCode) {
-          itemCodeSpan.remove();
-        }
-      });
     };
   });
 }
@@ -490,19 +473,10 @@ function searchItemDelete() {
 /** 거래처 조회 조건의 거래처 아이템 클릭 시 삭제 */
 function searchCustDelete() {
   const outBtnList = document.querySelectorAll(".cust-out-btn");
-  const custCodeSpanList = document
-    .getElementById("cust-code-div")
-    .querySelectorAll("span");
 
   outBtnList.forEach((outBtn) => {
     outBtn.onclick = () => {
       outBtn.parentNode.remove();
-
-      custCodeSpanList.forEach((custCodeSpan) => {
-        if (custCodeSpan.textContent === outBtn.dataset.custCode) {
-          custCodeSpan.remove();
-        }
-      });
     };
   });
 }

@@ -3,9 +3,10 @@ import { HomeButton } from "../../components/HomeButton.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
 import { usePagination } from "../../hooks/usePagination.js";
+import { useCheckbox } from "../../hooks/useCheckbox.js";
+import { CodeHelp } from "../../components/CodeHelp.js";
 
 let cachedCustList = [];
-const selectedIndices = new Set();
 const itemsPerPage = 10;
 let pagination;
 
@@ -16,10 +17,36 @@ const isSalesReg =
 const isSalesList =
   window.opener && window.opener.location.href.includes("sales-list.html");
 
+const checkboxHandler = useCheckbox(
+  "cust",
+  isSalesReg ? 1 : isSalesList ? 3 : 0
+);
+
 /** 조회 조건 설정 */
 const searchCustCode = document.getElementById("search-cust-code");
+searchCustCode.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    pagination.reset();
+    fetchAndCacheCustList();
+  }
+});
 const searchCustName = document.getElementById("search-cust-name");
+searchCustName.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    pagination.reset();
+    fetchAndCacheCustList();
+  }
+});
 searchCustCode.value = params.search || "";
+
+/** 코드헬프 객체 */
+const codeHelp = new CodeHelp({
+  inputId: "cust-input", // opener 기준 id임
+  helpDivId: "cust-code-help",
+  maxItems: isSalesReg ? 1 : 3,
+  mode: "cust",
+  isSuper: true,
+});
 
 /** 버튼 생성 */
 const searchBtn = new Button({
@@ -62,6 +89,7 @@ const nextBtn = new Button({
   id: "next-btn",
 }).render();
 
+/** 마지막 페이지 버튼 */
 const lastBtn = new Button({
   label: ">>",
   onClick: () => {
@@ -72,10 +100,11 @@ const lastBtn = new Button({
   id: "last-btn",
 }).render();
 
+/** 적용 버튼 */
 const applyBtn = new Button({
   label: "적용",
   onClick: () => {
-    const selectedCusts = Array.from(selectedIndices).map(
+    const selectedCusts = Array.from(checkboxHandler.getSelectedIndices()).map(
       (index) => cachedCustList[index]
     );
 
@@ -94,32 +123,7 @@ const applyBtn = new Button({
       }
     } else {
       if (selectedCusts.length > 0) {
-        const custDiv = window.opener.document.getElementById("cust-div");
-        custDiv.innerHTML = "";
-
-        const custCodeDiv =
-          window.opener.document.getElementById("cust-code-div");
-        custCodeDiv.innerHTML = "";
-
-        selectedCusts.forEach((cust) => {
-          const custCode = cust.custCode;
-          const custName = cust.custName;
-
-          const custSpan = document.createElement("span");
-          custSpan.textContent = `${custName} (${custCode})`;
-          const custCodeSpan = document.createElement("span");
-          custCodeSpan.textContent = custCode;
-
-          const outBtn = document.createElement("span");
-          outBtn.textContent = "🗑️";
-          outBtn.classList.add("cust-out-btn", "out-btn");
-          outBtn.dataset.custCode = custCode;
-
-          custSpan.appendChild(outBtn);
-          custDiv.appendChild(custSpan);
-          custCodeDiv.appendChild(custCodeSpan);
-        });
-
+        selectedCusts.forEach((selectedCust) => codeHelp.addItem(selectedCust));
         window.opener.searchCustDelete();
         window.close();
       } else {
@@ -149,17 +153,19 @@ const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
     const updatedCustList = cachedCustList.filter(
-      (cust, index) => !selectedIndices.has(index)
+      (cust, index) => !checkboxHandler.getSelectedIndices().has(index)
     );
 
     cachedCustList = updatedCustList;
-    selectedIndices.clear();
+    checkboxHandler.getSelectedIndices().clear();
     window.localStorage.setItem("cust-list", JSON.stringify(updatedCustList));
     alert("선택된 항목이 삭제되었습니다.");
 
     document.querySelector(
       ".table2 thead input[type='checkbox']"
     ).checked = false;
+
+    document.getElementById("checked-div").innerHTML = "";
 
     fetchAndCacheCustList();
   },
@@ -214,22 +220,18 @@ function renderCustList() {
     input1.dataset.index = pagination.getCurrentPageIndex(i);
     input1.dataset.custCode = cust.custCode;
     input1.dataset.custName = cust.custName;
-    input1.checked = selectedIndices.has(pagination.getCurrentPageIndex(i));
+    input1.checked = checkboxHandler.isChecked(
+      pagination.getCurrentPageIndex(i)
+    );
     input1.addEventListener("change", (event) => {
       const index = parseInt(event.target.dataset.index, 10);
-      if (event.target.checked) {
-        if (isSalesReg && selectedIndices.size >= 1) {
-          event.target.checked = false;
-          alert("최대 1개만 선택 가능합니다.");
-        } else if (isSalesList && selectedIndices.size >= 3) {
-          event.target.checked = false;
-          alert("최대 3개만 선택 가능합니다.");
-        } else {
-          selectedIndices.add(index);
-        }
-      } else {
-        selectedIndices.delete(index);
-      }
+      checkboxHandler.toggleCheckbox(
+        index,
+        event.target.checked,
+        cachedCustList,
+        event,
+        1
+      );
     });
     td1.appendChild(input1);
     td1.classList.add("center");
@@ -274,26 +276,16 @@ function renderCustList() {
     custDiv.append(tr);
   });
 
-  const headerCheckbox = document.querySelector(
-    ".table2 thead input[type='checkbox']"
+  checkboxHandler.handleHeaderCheckboxClick(
+    ".table2 thead input[type='checkbox']",
+    ".table2 tbody input[type='checkbox']",
+    cachedCustList
   );
-  headerCheckbox.onclick = (event) => {
-    const checkboxes = document.querySelectorAll(
-      ".table2 tbody input[type='checkbox']"
-    );
-    checkboxes.forEach((checkbox) => {
-      const index = parseInt(checkbox.dataset.index, 10);
-      checkbox.checked = event.target.checked;
-      if (event.target.checked) {
-        selectedIndices.add(index);
-      } else {
-        selectedIndices.delete(index);
-      }
-    });
-  };
 
   if (isSalesReg || isSalesList) {
-    headerCheckbox.disabled = true;
+    document.querySelector(
+      ".table2 thead input[type='checkbox']"
+    ).disabled = true;
   } else {
     document.getElementById("apply-btn").style.display = "none";
     document.getElementById("close-btn").style.display = "none";

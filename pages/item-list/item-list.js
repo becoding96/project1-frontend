@@ -3,9 +3,10 @@ import { HomeButton } from "../../components/HomeButton.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
 import { usePagination } from "../../hooks/usePagination.js";
+import { useCheckbox } from "../../hooks/useCheckbox.js";
+import { CodeHelp } from "../../components/CodeHelp.js";
 
 let cachedItemList = [];
-const selectedIndices = new Set();
 const itemsPerPage = 10;
 let pagination;
 
@@ -16,10 +17,36 @@ const isSalesReg =
 const isSalesList =
   window.opener && window.opener.location.href.includes("sales-list.html");
 
+const checkboxHandler = useCheckbox(
+  "item",
+  isSalesReg ? 1 : isSalesList ? 3 : 0
+);
+
 /** 조회 조건 설정 */
 const searchItemCode = document.getElementById("search-item-code");
+searchItemCode.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    pagination.reset();
+    fetchAndCacheItemList();
+  }
+});
 const searchItemName = document.getElementById("search-item-name");
+searchItemName.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    pagination.reset();
+    fetchAndCacheItemList();
+  }
+});
 searchItemCode.value = params.search || "";
+
+/** 코드헬프 객체 */
+const codeHelp = new CodeHelp({
+  inputId: "item-input", // opener 기준 id임
+  helpDivId: "item-code-help",
+  maxItems: isSalesReg ? 1 : 3,
+  mode: "item",
+  isSuper: true,
+});
 
 /** 버튼 생성 */
 const searchBtn = new Button({
@@ -62,6 +89,7 @@ const nextBtn = new Button({
   id: "next-btn",
 }).render();
 
+/** 마지막 페이지 버튼 */
 const lastBtn = new Button({
   label: ">>",
   onClick: () => {
@@ -72,56 +100,29 @@ const lastBtn = new Button({
   id: "last-btn",
 }).render();
 
+/** 적용 버튼 */
 const applyBtn = new Button({
   label: "적용",
   onClick: () => {
-    const selectedItems = Array.from(selectedIndices).map(
+    const selectedItems = Array.from(checkboxHandler.getSelectedIndices()).map(
       (index) => cachedItemList[index]
     );
 
     if (isSalesReg) {
       if (selectedItems.length === 1) {
-        const item = selectedItems[0];
-        const itemCode = item.itemCode;
-        const itemName = item.itemName;
-        const itemPrice = parseInt(item.itemPrice, 10);
-        window.opener.document.getElementById(
-          "item-input"
-        ).value = `${itemName} (${itemCode})`;
-        window.opener.document.getElementById("item-code").value = itemCode;
-        window.opener.document.getElementById("price").value = itemPrice;
+        codeHelp.addItem(selectedItems[0]);
+        window.opener.document.getElementById("price").value = parseInt(
+          selectedItems[0].itemPrice,
+          10
+        );
+        window.opener.inputItemDelete();
         window.close();
       } else {
         alert("품목을 선택해주세요.");
       }
     } else {
       if (selectedItems.length > 0) {
-        const itemDiv = window.opener.document.getElementById("item-div");
-        itemDiv.innerHTML = "";
-
-        const itemCodeDiv =
-          window.opener.document.getElementById("item-code-div");
-        itemCodeDiv.innerHTML = "";
-
-        selectedItems.forEach((item) => {
-          const itemCode = item.itemCode;
-          const itemName = item.itemName;
-
-          const itemSpan = document.createElement("span");
-          itemSpan.textContent = `${itemName} (${itemCode})`;
-          const itemCodeSpan = document.createElement("span");
-          itemCodeSpan.textContent = itemCode;
-
-          const outBtn = document.createElement("span");
-          outBtn.textContent = "🗑️";
-          outBtn.classList.add("item-out-btn", "out-btn");
-          outBtn.dataset.itemCode = itemCode;
-
-          itemSpan.appendChild(outBtn);
-          itemDiv.appendChild(itemSpan);
-          itemCodeDiv.appendChild(itemCodeSpan);
-        });
-
+        selectedItems.forEach((selectedItem) => codeHelp.addItem(selectedItem));
         window.opener.searchItemDelete();
         window.close();
       } else {
@@ -151,17 +152,19 @@ const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
     const updatedItemList = cachedItemList.filter(
-      (item, index) => !selectedIndices.has(index)
+      (item, index) => !checkboxHandler.getSelectedIndices().has(index)
     );
 
     cachedItemList = updatedItemList;
-    selectedIndices.clear();
+    checkboxHandler.getSelectedIndices().clear();
     window.localStorage.setItem("item-list", JSON.stringify(updatedItemList));
     alert("선택된 항목이 삭제되었습니다.");
 
     document.querySelector(
       ".table2 thead input[type='checkbox']"
     ).checked = false;
+
+    document.getElementById("checked-div").innerHTML = "";
 
     fetchAndCacheItemList();
   },
@@ -217,22 +220,18 @@ function renderItemList() {
     input1.dataset.itemCode = item.itemCode;
     input1.dataset.itemName = item.itemName;
     input1.dataset.itemPrice = parseInt(item.itemPrice, 10);
-    input1.checked = selectedIndices.has(pagination.getCurrentPageIndex(i));
+    input1.checked = checkboxHandler.isChecked(
+      pagination.getCurrentPageIndex(i)
+    );
     input1.addEventListener("change", (event) => {
       const index = parseInt(event.target.dataset.index, 10);
-      if (event.target.checked) {
-        if (isSalesReg && selectedIndices.size >= 1) {
-          event.target.checked = false;
-          alert("최대 1개만 선택 가능합니다.");
-        } else if (isSalesList && selectedIndices.size >= 3) {
-          event.target.checked = false;
-          alert("최대 3개만 선택 가능합니다.");
-        } else {
-          selectedIndices.add(index);
-        }
-      } else {
-        selectedIndices.delete(index);
-      }
+      checkboxHandler.toggleCheckbox(
+        index,
+        event.target.checked,
+        cachedItemList,
+        event,
+        1
+      );
     });
     td1.appendChild(input1);
     td1.classList.add("center");
@@ -281,26 +280,16 @@ function renderItemList() {
     itemDiv.append(tr);
   });
 
-  const headerCheckbox = document.querySelector(
-    ".table2 thead input[type='checkbox']"
+  checkboxHandler.handleHeaderCheckboxClick(
+    ".table2 thead input[type='checkbox']",
+    ".table2 tbody input[type='checkbox']",
+    cachedItemList
   );
-  headerCheckbox.onclick = (event) => {
-    const checkboxes = document.querySelectorAll(
-      ".table2 tbody input[type='checkbox']"
-    );
-    checkboxes.forEach((checkbox) => {
-      const index = parseInt(checkbox.dataset.index, 10);
-      checkbox.checked = event.target.checked;
-      if (event.target.checked) {
-        selectedIndices.add(index);
-      } else {
-        selectedIndices.delete(index);
-      }
-    });
-  };
 
   if (isSalesReg || isSalesList) {
-    headerCheckbox.disabled = true;
+    document.querySelector(
+      ".table2 thead input[type='checkbox']"
+    ).disabled = true;
   } else {
     document.getElementById("apply-btn").style.display = "none";
     document.getElementById("close-btn").style.display = "none";

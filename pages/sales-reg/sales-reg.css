@@ -1,20 +1,3 @@
 .table {
   width: 600px;
 }
-
-.row {
-  background-color: rgb(240, 240, 240);
-}
-
-.row-input {
-  width: 60%;
-}
-
-.code-help {
-  width: calc(60% - 32px);
-  padding-left: 35px;
-  background-image: url(../../public/search.png);
-  background-position: 2px center;
-  background-size: 23px 23px;
-  background-repeat: no-repeat;
-}

@@ -19,28 +19,16 @@
             <input type="date" id="slip-date-to" />
           </div>
         </div>
-        <div class="row" style="padding: 0.1rem 0.25rem">
+        <div class="row">
           <span class="row-title">품목</span>
-          <div class="row-input code-help">
-            <img
-              id="item-code-help-img"
-              class="code-help-img"
-              src="../../public/search.png"
-              alt="search"
-            />
-            <div id="item-div" class="code-help-div"></div>
+          <div class="row-input code-help" id="item-code-help">
+            <input type="text" id="item-input" />
           </div>
         </div>
-        <div class="row" style="padding: 0.1rem 0.25rem">
+        <div class="row">
           <span class="row-title">거래처</span>
-          <div class="row-input code-help">
-            <img
-              id="cust-code-help-img"
-              class="code-help-img"
-              src="../../public/search.png"
-              alt="search"
-            />
-            <div id="cust-div" class="code-help-div"></div>
+          <div class="row-input code-help" id="cust-code-help">
+            <input type="text" id="cust-input" />
           </div>
         </div>
         <div class="row">
@@ -65,6 +53,7 @@
       <div class="btn-div" id="search-btn-div"></div>
       <div class="table-div">
         <div class="btn-div" id="next-prev-btn-div"></div>
+        <div class="checked-div" id="checked-div"></div>
         <table class="table2">
           <thead>
             <tr>
