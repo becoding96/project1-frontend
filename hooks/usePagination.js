@@ -1,3 +1,4 @@
+/** 페이지네이션 처리 로직 */
 export function usePagination(data, itemsPerPage) {
   let currentPage = 1;
 
@@ -5,11 +6,12 @@ export function usePagination(data, itemsPerPage) {
 
   const getCurrentPage = () => currentPage;
 
+  /** 현재 페이지 데이터 */
   const getPaginatedData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = data.slice(startIndex, startIndex + itemsPerPage);
 
-    /** 데이터가 없으면 이전 페이지로 이동 */
+    // 데이터가 없으면 이전 페이지로 이동
     if (paginatedData.length === 0 && currentPage > 1) {
       currentPage--;
       return getPaginatedData();
@@ -40,6 +42,7 @@ export function usePagination(data, itemsPerPage) {
     currentPage = 1;
   };
 
+  /** 페이지 번호 */
   function getVisiblePageNumbers() {
     const visiblePages = 5;
     let start = Math.max(currentPage - Math.floor(visiblePages / 2), 1);
@@ -50,6 +53,7 @@ export function usePagination(data, itemsPerPage) {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
+  /** 전체 데이터 기준 인덱스 반환 */
   const getCurrentPageIndex = (index) =>
     (currentPage - 1) * itemsPerPage + index;
 

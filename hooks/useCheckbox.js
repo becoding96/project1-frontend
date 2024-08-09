@@ -1,12 +1,16 @@
+/** 체크박스 처리 로직 */
 export function useCheckbox(
-  mode = "item",
-  maxCount = 0,
+  mode = "item", // 품목, 거래처 별로
+  maxCount = 0, // 최대 선택 개수
   initialSelectedIndices = new Set()
 ) {
+  /** 선택 데이터 저장 - 페이지 넘겨도 유지되어야 함 */
   const selectedIndices = initialSelectedIndices;
 
+  /** 렌더링 시 다시 체크하기 위함 */
   const isChecked = (index) => selectedIndices.has(index);
 
+  /** 체크 로직 */
   const toggleCheckbox = (index, isChecked, data, event) => {
     if (isChecked) {
       if (maxCount != 0 && selectedIndices.size >= maxCount) {
@@ -19,9 +23,10 @@ export function useCheckbox(
     } else {
       selectedIndices.delete(index);
     }
-    updateCheckedDiv(data);
+    updateCheckedDiv(data); // 상단 체크 내역 표시
   };
 
+  /** 헤더 체크박스 클릭 로직 */
   const handleHeaderCheckboxClick = (
     headerCheckboxSelector,
     bodyCheckboxesSelector,
@@ -38,8 +43,10 @@ export function useCheckbox(
     };
   };
 
+  /** 선택 데이터 */
   const getSelectedIndices = () => selectedIndices;
 
+  /** 상단 체크 내역 표시 */
   const updateCheckedDiv = (data) => {
     const checkedDiv = document.getElementById("checked-div");
     checkedDiv.innerHTML = "";
@@ -68,36 +75,6 @@ export function useCheckbox(
       }
     });
   };
-
-  const insertStyles = () => {
-    const style = document.createElement("style");
-    style.textContent = `
-      .checked-div {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 5px;
-      }
-
-      .checked-div div {
-        margin: 5px 5px 0 0;
-        padding: 5px;
-        background-color: rgb(221, 241, 250);
-        border-radius: 5px;
-        font-size: 0.75rem;
-        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.025);
-        cursor: pointer;
-      }
-
-      .checked-div div:hover {
-        background-color: rgb(205, 239, 255);
-      }
-    `;
-    document.head.appendChild(style);
-  };
-
-  if (!document.getElementById("useCheckboxStyles")) {
-    insertStyles();
-  }
 
   return {
     isChecked,

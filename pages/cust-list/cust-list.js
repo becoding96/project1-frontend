@@ -24,24 +24,27 @@ const checkboxHandler = useCheckbox(
 
 /** 조회 조건 설정 */
 const searchCustCode = document.getElementById("search-cust-code");
+const searchCustName = document.getElementById("search-cust-name");
+
+searchCustCode.value = params.search || "";
+
 searchCustCode.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     pagination.reset();
     fetchAndCacheCustList();
   }
 });
-const searchCustName = document.getElementById("search-cust-name");
+
 searchCustName.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     pagination.reset();
     fetchAndCacheCustList();
   }
 });
-searchCustCode.value = params.search || "";
 
 /** 코드헬프 객체 */
 const codeHelp = new CodeHelp({
-  inputId: "cust-input", // opener 기준 id임
+  inputId: "cust-input",
   helpDivId: "cust-code-help",
   maxItems: isSalesReg ? 1 : 3,
   mode: "cust",
@@ -89,7 +92,6 @@ const nextBtn = new Button({
   id: "next-btn",
 }).render();
 
-/** 마지막 페이지 버튼 */
 const lastBtn = new Button({
   label: ">>",
   onClick: () => {
@@ -100,7 +102,6 @@ const lastBtn = new Button({
   id: "last-btn",
 }).render();
 
-/** 적용 버튼 */
 const applyBtn = new Button({
   label: "적용",
   onClick: () => {

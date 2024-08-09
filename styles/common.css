@@ -109,6 +109,59 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+.btn {
+  padding: 0.25rem 1rem;
+  border: 1px solid rgb(150, 150, 150);
+  background-color: rgb(240, 240, 240);
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+}
+
+.btn:hover {
+  cursor: pointer;
+  background-color: rgb(230, 230, 230);
+  transition: background-color 0.3s;
+}
+
+.blue-btn {
+  border: 1px solid rgb(0, 58, 125);
+  background-color: rgb(0, 79, 168);
+  color: white;
+}
+
+.blue-btn:hover {
+  background-color: rgb(0, 70, 150);
+}
+
+.page-btn {
+  border: none;
+  border-radius: 100%;
+  padding: 0.1rem;
+  width: 25px;
+  height: 25px;
+  font-size: 0.6rem;
+  font-weight: bold;
+}
+
+.home-btn {
+  display: flex;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background-color: rgb(221, 241, 250);
+  border-radius: 100%;
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  font-size: 30px;
+  line-height: 50px;
+  box-shadow: 1px 1px 5px rgb(0, 0, 0, 0.1);
+}
+
+.home-btn:hover {
+  transform: scale(1.05);
+}
+
 .code-help {
   display: flex;
   flex-wrap: wrap;
@@ -161,4 +214,24 @@ input::-webkit-inner-spin-button {
 
 .out-btn:hover {
   transform: scale(1.1);
+}
+
+.checked-div {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.checked-div div {
+  margin: 5px 5px 0 0;
+  padding: 5px;
+  background-color: rgb(221, 241, 250);
+  border-radius: 5px;
+  font-size: 0.75rem;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.025);
+  cursor: pointer;
+}
+
+.checked-div div:hover {
+  background-color: rgb(205, 239, 255);
 }

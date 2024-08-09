@@ -1,5 +1,6 @@
 import { openPopup } from "../../util/open-pop-up.js";
 
+/** 코드 검색 컴포넌트 */
 export class CodeHelp {
   constructor({ inputId, helpDivId, maxItems, mode, searchFunction, isSuper }) {
     if (isSuper && window.opener) {
@@ -19,14 +20,12 @@ export class CodeHelp {
 
   initialize() {
     if (this.input) {
-      // 입력 + 엔터
       this.input.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
           this.handleInputEnter();
         }
       });
 
-      // 더블 클릭
       this.input.addEventListener("dblclick", () => {
         this.openPopup();
       });
@@ -49,7 +48,7 @@ export class CodeHelp {
     }
   }
 
-  /** div에 아이템 추가 */
+  /** 검색 or 적용한 데이터 div에 추가 */
   addItem(item) {
     const added = this.helpDiv.querySelectorAll(`.${this.mode}-span`);
 
@@ -64,12 +63,11 @@ export class CodeHelp {
     }
 
     // 꽉 찬 경우
-    if (this.helpDiv.children.length >= this.maxItems + 1) {
+    if (added.length >= this.maxItems) {
       // 최대 1개일 때
       if (this.maxItems === 1) {
         this.helpDiv.querySelector("span").remove();
-        // 최대 3개일 때
-      } else if (this.maxItems === 3) {
+      } else if (this.maxItems > 1) {
         alert(`최대 ${this.maxItems}개까지 입력 가능합니다.`);
         return;
       }
@@ -105,7 +103,7 @@ export class CodeHelp {
     openPopup(popupUrl, 900, 600, `search=${encodeURIComponent(searchTerm)}`);
   }
 
-  /** span 비우기 */
+  /** div 비우기 */
   clear() {
     this.helpDiv.querySelectorAll(`${this.mode}-span`).forEach((span) => {
       span.remove();
