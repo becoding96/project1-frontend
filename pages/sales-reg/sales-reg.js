@@ -1,4 +1,3 @@
-import { getItemName } from "../../util/get-item-name.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { Button } from "../../components/Button.js";
 import { CodeHelp } from "../../components/CodeHelp.js";
@@ -96,6 +95,7 @@ function clickSaveBtnHandler() {
   const itemCode = document.querySelector("#item-code-help span").dataset
     .itemCode;
 
+  // 수정
   if (isUpdate) {
     try {
       const formData = {
@@ -128,6 +128,7 @@ function clickSaveBtnHandler() {
     } catch (error) {
       console.error(error);
     }
+    // 신규 저장
   } else {
     try {
       const slipDate2 = new Date(slipDate.value);
