@@ -5,6 +5,8 @@ import { openPopup } from "../../util/open-pop-up.js";
 import { usePagination } from "../../hooks/usePagination.js";
 import { useCheckbox } from "../../hooks/useCheckbox.js";
 import { CodeHelp } from "../../components/CodeHelp.js";
+import { renderPaginationButtons } from "../../util/render-pagination-buttons.js";
+import { handleCheckDelete } from "../../util/handle-check-delete.js";
 
 let cachedItemList = [];
 const itemsPerPage = 10;
@@ -42,7 +44,7 @@ searchItemName.addEventListener("keydown", (event) => {
   }
 });
 
-/** 코드헬프 객체 */
+/** 코드헬프 */
 const codeHelp = new CodeHelp({
   inputId: "item-input",
   helpDivId: "item-code-help",
@@ -152,22 +154,12 @@ const closeBtn = new Button({
 const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
-    const updatedItemList = cachedItemList.filter(
-      (item, index) => !checkboxHandler.getSelectedIndices().has(index)
-    );
-
-    cachedItemList = updatedItemList;
-    checkboxHandler.getSelectedIndices().clear();
-    window.localStorage.setItem("item-list", JSON.stringify(updatedItemList));
-    alert("선택된 항목이 삭제되었습니다.");
-
-    document.querySelector(
-      ".table2 thead input[type='checkbox']"
-    ).checked = false;
-
-    document.getElementById("checked-div").innerHTML = "";
-
-    fetchAndCacheItemList();
+    handleCheckDelete({
+      cachedList: cachedItemList,
+      checkboxHandler: checkboxHandler,
+      storageKey: "item-list",
+      fetchFunction: fetchAndCacheItemList,
+    });
   },
   id: "check-del-btn",
 }).render();
@@ -178,7 +170,7 @@ document
   .getElementById("func-btn-div")
   .append(applyBtn, newBtn, checkDelBtn, closeBtn);
 
-/** 조건에 맞는 아이템 리스트 불러오기 */
+/** 품목 리스트 가져와서 캐싱 */
 function fetchAndCacheItemList() {
   let itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
 
@@ -203,7 +195,7 @@ function fetchAndCacheItemList() {
   renderItemList();
 }
 
-/** 필터링된 품목 리스트 렌더링 */
+/** 캐싱한 품목 리스트 페이지 단위로 화면에 렌더링 */
 function renderItemList() {
   const itemDiv = document.getElementById("item-div");
   itemDiv.innerHTML = "";
@@ -296,40 +288,16 @@ function renderItemList() {
     document.getElementById("close-btn").style.display = "none";
   }
 
-  renderPaginationButtons();
-}
-
-/** 페이지네이션 버튼 렌더링 */
-function renderPaginationButtons() {
-  const paginationDiv = document.getElementById("next-prev-btn-div");
-  paginationDiv.innerHTML = "";
-
-  const visiblePages = pagination.getVisiblePageNumbers();
-
-  paginationDiv.append(firstBtn, prevBtn);
-
-  visiblePages.forEach((pageNumber) => {
-    const pageButton = new Button({
-      label: pageNumber.toString(),
-      onClick: () => {
-        pagination.setPage(pageNumber);
-        renderItemList();
-      },
-      className:
-        pageNumber === pagination.getCurrentPage()
-          ? "page-btn blue-btn"
-          : "page-btn",
-    }).render();
-
-    paginationDiv.appendChild(pageButton);
+  // 페이지네이션 버튼 렌더링
+  renderPaginationButtons({
+    pagination,
+    renderListFunction: renderItemList,
+    paginationDivId: "next-prev-btn-div",
+    firstBtn,
+    prevBtn,
+    nextBtn,
+    lastBtn,
   });
-
-  paginationDiv.append(nextBtn, lastBtn);
-
-  document.getElementById("prev-btn").disabled =
-    pagination.getCurrentPage() === 1;
-  document.getElementById("next-btn").disabled =
-    pagination.getCurrentPage() >= pagination.getTotalPages();
 }
 
 /** 품목 등록에서 사용할 수 있도록 전역화 */

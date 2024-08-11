@@ -6,14 +6,16 @@ import { usePagination } from "../../hooks/usePagination.js";
 import { useCheckbox } from "../../hooks/useCheckbox.js";
 import { CodeHelp } from "../../components/CodeHelp.js";
 import { printSale } from "./sale-print.js";
+import { renderPaginationButtons } from "../../util/render-pagination-buttons.js";
+import { handleCheckDelete } from "../../util/handle-check-delete.js";
 
 let cachedSalesList = [];
 const itemsPerPage = 10;
 let pagination;
 const checkboxHandler = useCheckbox("sales");
 
-/** CodeHelp 인스턴스 생성 */
-const itemCodeHelp = new CodeHelp({
+/** 코드헬프 */
+new CodeHelp({
   inputId: "item-input",
   helpDivId: "item-code-help",
   maxItems: 3,
@@ -87,22 +89,12 @@ const newBtn = new Button({
 const checkDelBtn = new Button({
   label: "선택삭제",
   onClick: () => {
-    const updatedSalesList = cachedSalesList.filter(
-      (sale, index) => !checkboxHandler.getSelectedIndices().has(index)
-    );
-
-    cachedSalesList = updatedSalesList;
-    checkboxHandler.getSelectedIndices().clear();
-    window.localStorage.setItem("sales-list", JSON.stringify(updatedSalesList));
-    alert("선택된 항목이 삭제되었습니다.");
-
-    document.querySelector(
-      ".table2 thead input[type='checkbox']"
-    ).checked = false;
-
-    document.getElementById("checked-div").innerHTML = "";
-
-    fetchAndCacheSalesList();
+    handleCheckDelete({
+      cachedList: cachedSalesList,
+      checkboxHandler: checkboxHandler,
+      storageKey: "sales-list",
+      fetchFunction: fetchAndCacheSalesList,
+    });
   },
   id: "check-del-btn",
 }).render();
@@ -111,7 +103,7 @@ document.getElementById("search-btn-div").appendChild(searchBtn);
 document.getElementById("next-prev-btn-div").append(prevBtn, nextBtn);
 document.getElementById("func-btn-div").append(newBtn, checkDelBtn);
 
-/** 판매 리스트 가져와서 캐시하는 함수 */
+/** 판매 리스트 가져와서 캐싱 */
 function fetchAndCacheSalesList() {
   const sItemCodeDiv = document.getElementById("item-code-help");
   const sSlipDateFr = document.getElementById("slip-date-fr");
@@ -123,8 +115,6 @@ function fetchAndCacheSalesList() {
       return sItem.dataset.itemCode;
     })
   );
-
-  console.log(sItemSet);
 
   const allSalesList =
     JSON.parse(window.localStorage.getItem("sales-list")) || [];
@@ -151,7 +141,7 @@ function fetchAndCacheSalesList() {
   renderSalesList();
 }
 
-/** 필터링 된 판매 리스트 화면에 렌더링 */
+/** 캐싱한 판매 리스트 페이지 단위로 화면에 렌더링 */
 function renderSalesList() {
   const salesTableBody = document.querySelector(".table2 tbody");
   salesTableBody.innerHTML = "";
@@ -245,40 +235,16 @@ function renderSalesList() {
       openPopup("../item-list/item-list.html", 900, 600, "");
   }
 
-  renderPaginationButtons();
-}
-
-/** 페이지네이션 버튼 렌더링 */
-function renderPaginationButtons() {
-  const paginationDiv = document.getElementById("next-prev-btn-div");
-  paginationDiv.innerHTML = "";
-
-  const visiblePages = pagination.getVisiblePageNumbers();
-
-  paginationDiv.append(firstBtn, prevBtn);
-
-  visiblePages.forEach((pageNumber) => {
-    const pageButton = new Button({
-      label: pageNumber.toString(),
-      onClick: () => {
-        pagination.setPage(pageNumber);
-        renderSalesList();
-      },
-      className:
-        pageNumber === pagination.getCurrentPage()
-          ? "page-btn blue-btn"
-          : "page-btn",
-    }).render();
-
-    paginationDiv.appendChild(pageButton);
+  // 페이지네이션 버튼 렌더링
+  renderPaginationButtons({
+    pagination,
+    renderListFunction: renderSalesList,
+    paginationDivId: "next-prev-btn-div",
+    firstBtn,
+    prevBtn,
+    nextBtn,
+    lastBtn,
   });
-
-  paginationDiv.append(nextBtn, lastBtn);
-
-  document.getElementById("prev-btn").disabled =
-    pagination.getCurrentPage() === 1;
-  document.getElementById("next-btn").disabled =
-    pagination.getCurrentPage() >= pagination.getTotalPages();
 }
 
 /** 품목 조회 조건의 품목 아이템 클릭 시 삭제 */
