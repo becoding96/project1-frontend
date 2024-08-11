@@ -170,12 +170,12 @@ input::-webkit-inner-spin-button {
   width: calc(60% - 27px);
   height: unset;
   min-height: 1.2rem;
-  padding: 5px 5px 5px 30px;
+  padding: 3px 3px 3px 30px;
   background-image: url(../../public/search.png);
   background-position: 2px center;
   background-size: 23px 23px;
   background-repeat: no-repeat;
-  gap: 5px;
+  gap: 3px;
 }
 
 .code-help input {
@@ -184,7 +184,7 @@ input::-webkit-inner-spin-button {
   border-radius: 5px;
   width: 30%;
   height: 1.2rem;
-  margin-right: 5px;
+  margin-right: 3px;
   padding: 0.1rem 0.25rem 0.1rem 0.5rem;
 }
 
@@ -196,7 +196,7 @@ input::-webkit-inner-spin-button {
   border: none;
   border-radius: 5px;
   min-height: 1.2rem;
-  margin-right: 5px;
+  margin-right: 3px;
   background-color: rgb(196, 236, 255);
   color: rgb(0, 76, 255);
 }

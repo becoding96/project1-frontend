@@ -2,7 +2,7 @@ import { openPopup } from "../../util/open-pop-up.js";
 
 /** 코드 검색 컴포넌트 */
 export class CodeHelp {
-  constructor({ inputId, helpDivId, maxItems, mode, searchFunction, isSuper }) {
+  constructor({ inputId, helpDivId, maxItems, searchFunction, isSuper }) {
     if (isSuper && window.opener) {
       this.input = window.opener.document.getElementById(inputId);
       this.helpDiv = window.opener.document.getElementById(helpDivId);
@@ -12,7 +12,6 @@ export class CodeHelp {
     }
 
     this.maxItems = maxItems;
-    this.mode = mode;
     this.searchFunction = searchFunction;
 
     this.initialize();
@@ -50,15 +49,13 @@ export class CodeHelp {
 
   /** 검색 or 적용한 데이터 div에 추가 */
   addItem(item) {
-    const added = this.helpDiv.querySelectorAll(`.${this.mode}-span`);
+    const added = this.helpDiv.querySelectorAll(`.item-span`);
 
     if (added.length > 0) {
       for (let i = 0; i < added.length; i++) {
-        if (
-          (this.mode === "item" && added[i].dataset.code === item.itemCode) ||
-          (this.mode === "cust" && added[i].dataset.code === item.custCode)
-        )
+        if (added[i].dataset.code === item.itemCode) {
           return;
+        }
       }
     }
 
@@ -74,12 +71,9 @@ export class CodeHelp {
     }
 
     const span = document.createElement("span");
-    span.textContent =
-      this.mode === "item"
-        ? `${item.itemCode} (${item.itemName})`
-        : `${item.custCode} (${item.custName})`;
-    span.dataset.code = this.mode === "item" ? item.itemCode : item.custCode;
-    span.classList.add(`${this.mode}-span`);
+    span.textContent = `${item.itemCode} (${item.itemName})`;
+    span.dataset.itemCode = item.itemCode;
+    span.classList.add(`item-span`);
     span.onclick = () => {
       span.remove();
     };
@@ -87,8 +81,8 @@ export class CodeHelp {
     // span 삭제 버튼
     const outBtn = document.createElement("span");
     outBtn.textContent = "🗑️";
-    outBtn.classList.add("out-btn", `${this.mode}-out-btn`);
-    outBtn.dataset.code = this.mode === "item" ? item.itemCode : item.custCode;
+    outBtn.classList.add("out-btn", `item-out-btn`);
+    outBtn.dataset.code = item.itemCode;
 
     span.appendChild(outBtn);
     this.helpDiv.appendChild(span);
@@ -96,16 +90,13 @@ export class CodeHelp {
 
   /** 팝업 열기 */
   openPopup(searchTerm = "") {
-    const popupUrl =
-      this.mode === "item"
-        ? "../item-list/item-list.html"
-        : "../cust-list/cust-list.html";
+    const popupUrl = "../item-list/item-list.html";
     openPopup(popupUrl, 900, 600, `search=${encodeURIComponent(searchTerm)}`);
   }
 
   /** div 비우기 */
   clear() {
-    this.helpDiv.querySelectorAll(`${this.mode}-span`).forEach((span) => {
+    this.helpDiv.querySelectorAll(`item-span`).forEach((span) => {
       span.remove();
     });
   }

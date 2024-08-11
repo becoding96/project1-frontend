@@ -57,8 +57,6 @@ export function useCheckbox(
         const div = document.createElement("div");
         if (mode === "item")
           div.textContent = `${item.itemName} (${item.itemCode})`;
-        if (mode === "cust")
-          div.textContent = `${item.custName} (${item.custCode})`;
         if (mode === "sales") div.textContent = `${item.slipCode}`;
         div.dataset.index = index;
         div.onclick = () => {

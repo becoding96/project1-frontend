@@ -21,7 +21,6 @@ const isUpdate = params["update"]
 /** 판매 항목 요소들 */
 const slipDate = document.getElementById("slip-date");
 const itemInput = document.getElementById("item-input");
-const custInput = document.getElementById("cust-input");
 const qty = document.getElementById("qty");
 const price = document.getElementById("price");
 const description = document.getElementById("description");
@@ -36,19 +35,6 @@ const itemCodeHelp = new CodeHelp({
     const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
     return itemList.filter((item) =>
       item.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  },
-});
-
-const custCodeHelp = new CodeHelp({
-  inputId: "cust-input",
-  helpDivId: "cust-code-help",
-  maxItems: 1,
-  mode: "cust",
-  searchFunction: (searchTerm) => {
-    const custList = JSON.parse(window.localStorage.getItem("cust-list")) || [];
-    return custList.filter((cust) =>
-      cust.custCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
   },
 });
@@ -99,7 +85,6 @@ function clickSaveBtnHandler() {
   if (
     !slipDate.value ||
     !document.querySelector("#item-code-help span") ||
-    !document.querySelector("#cust-code-help span") ||
     !qty.value ||
     !price.value ||
     !description.value
@@ -108,8 +93,8 @@ function clickSaveBtnHandler() {
     return;
   }
 
-  const itemCode = document.querySelector("#item-code-help span").dataset.code;
-  const custCode = document.querySelector("#cust-code-help span").dataset.code;
+  const itemCode = document.querySelector("#item-code-help span").dataset
+    .itemCode;
 
   if (isUpdate) {
     try {
@@ -117,7 +102,6 @@ function clickSaveBtnHandler() {
         slipCode: savedSale.slipCode,
         slipDate: savedSale.slipDate,
         itemCode,
-        custCode,
         qty: qty.value,
         price: price.value,
         description: description.value,
@@ -170,7 +154,6 @@ function clickSaveBtnHandler() {
         slipCode: slipDate.value + "-" + (maxNo + 1),
         slipDate: slipDate.value,
         itemCode,
-        custCode,
         qty: qty.value,
         price: price.value,
         description: description.value,
@@ -221,21 +204,10 @@ function init() {
         (item) => item.itemCode === savedSale.itemCode
       )?.itemName || "";
 
-    const custName =
-      JSON.parse(window.localStorage.getItem("cust-list")).find(
-        (cust) => cust.custCode === savedSale.custCode
-      )?.custName || "";
-
     itemCodeHelp.clear();
     itemCodeHelp.addItem({
       itemCode: savedSale.itemCode,
       itemName: itemName,
-    });
-
-    custCodeHelp.clear();
-    custCodeHelp.addItem({
-      custCode: savedSale.custCode,
-      custName: custName,
     });
 
     qty.value = savedSale.qty;
@@ -244,7 +216,6 @@ function init() {
   } else {
     slipDate.value = "";
     itemInput.value = "";
-    custInput.value = "";
     qty.value = "";
     price.value = "";
     description.value = "";

@@ -26,19 +26,6 @@ const itemCodeHelp = new CodeHelp({
   },
 });
 
-const custCodeHelp = new CodeHelp({
-  inputId: "cust-input",
-  helpDivId: "cust-code-help",
-  maxItems: 3,
-  mode: "cust",
-  searchFunction: (searchTerm) => {
-    const custList = JSON.parse(window.localStorage.getItem("cust-list")) || [];
-    return custList.filter((cust) =>
-      cust.custCode.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  },
-});
-
 /** 버튼 생성 */
 const searchBtn = new Button({
   label: "검색",
@@ -127,24 +114,17 @@ document.getElementById("func-btn-div").append(newBtn, checkDelBtn);
 /** 판매 리스트 가져와서 캐시하는 함수 */
 function fetchAndCacheSalesList() {
   const sItemCodeDiv = document.getElementById("item-code-help");
-  const sCustCodeDiv = document.getElementById("cust-code-help");
   const sSlipDateFr = document.getElementById("slip-date-fr");
   const sSlipDateTo = document.getElementById("slip-date-to");
   const sDescription = document.getElementById("description");
 
   const sItemSet = new Set(
     Array.from(sItemCodeDiv.querySelectorAll(".item-span")).map((sItem) => {
-      return sItem.dataset.code;
+      return sItem.dataset.itemCode;
     })
   );
 
   console.log(sItemSet);
-
-  const sCustSet = new Set(
-    Array.from(sCustCodeDiv.querySelectorAll(".cust-span")).map((sCust) => {
-      return sCust.dataset.code;
-    })
-  );
 
   const allSalesList =
     JSON.parse(window.localStorage.getItem("sales-list")) || [];
@@ -156,7 +136,6 @@ function fetchAndCacheSalesList() {
       (!sSlipDateTo.value ||
         new Date(sSlipDateTo.value) >= new Date(sale.slipDate)) &&
       (sItemSet.size === 0 || sItemSet.has(sale.itemCode)) &&
-      (sCustSet.size === 0 || sCustSet.has(sale.custCode)) &&
       (!sDescription.value ||
         sale.description
           .toLowerCase()
@@ -225,18 +204,6 @@ function renderSalesList() {
     itemNameCell.textContent = getItemName(sale.itemCode);
     row.appendChild(itemNameCell);
 
-    const custCodeCell = document.createElement("td");
-    custCodeCell.textContent = sale.custCode;
-    row.appendChild(custCodeCell);
-
-    const custNameCell = document.createElement("td");
-    const custName =
-      JSON.parse(window.localStorage.getItem("cust-list")).find(
-        (cust) => cust.custCode === sale.custCode
-      )?.custName || "";
-    custNameCell.textContent = custName;
-    row.appendChild(custNameCell);
-
     const qtyCell = document.createElement("td");
     qtyCell.textContent = parseInt(sale.qty, 10).toLocaleString();
     row.appendChild(qtyCell);
@@ -276,10 +243,6 @@ function renderSalesList() {
   if (document.getElementById("item-code-help-img")) {
     document.getElementById("item-code-help-img").onclick = () =>
       openPopup("../item-list/item-list.html", 900, 600, "");
-  }
-  if (document.getElementById("cust-code-help-img")) {
-    document.getElementById("cust-code-help-img").onclick = () =>
-      openPopup("../cust-list/cust-list.html", 800, 600, "");
   }
 
   renderPaginationButtons();
@@ -329,21 +292,9 @@ function searchItemDelete() {
   });
 }
 
-/** 거래처 조회 조건의 거래처 아이템 클릭 시 삭제 */
-function searchCustDelete() {
-  const outBtnList = document.querySelectorAll(".cust-out-btn");
-
-  outBtnList.forEach((outBtn) => {
-    outBtn.onclick = () => {
-      outBtn.parentNode.remove();
-    };
-  });
-}
-
 /** 판매 등록에서 사용할 수 있도록 전역화 */
 window.fetchAndCacheSalesList = fetchAndCacheSalesList;
 window.searchItemDelete = searchItemDelete;
-window.searchCustDelete = searchCustDelete;
 
 /** 초기 조회 */
 fetchAndCacheSalesList();
