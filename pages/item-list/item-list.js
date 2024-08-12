@@ -11,10 +11,6 @@ import { handleCheckDelete } from "../../util/handle-check-delete.js";
 let cachedItemList = [];
 const itemsPerPage = 10;
 let pagination;
-const checkboxHandler = useCheckbox(
-  "item",
-  isSalesReg ? 1 : isSalesList ? 3 : 0
-);
 
 /** 쿼리 params */
 const params = getUrlParams();
@@ -22,6 +18,11 @@ const isSalesReg =
   window.opener && window.opener.location.href.includes("sales-reg.html");
 const isSalesList =
   window.opener && window.opener.location.href.includes("sales-list.html");
+
+const checkboxHandler = useCheckbox(
+  "item",
+  isSalesReg ? 1 : isSalesList ? 3 : 0
+);
 
 /** 조회 조건 설정 */
 const searchItemCode = document.getElementById("search-item-code");
