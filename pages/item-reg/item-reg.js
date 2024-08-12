@@ -61,7 +61,7 @@ document.querySelector(".btn-div").append(saveBtn, delBtn, reBtn, closeBtn);
 /** 신규 */
 if (!isSaved && !isUpdate) {
   delBtn.style.display = "none";
-  /** 품목 조회 */
+  /** 품목 코드를 눌러 진입한 경우 */
 } else if (isSaved && !isUpdate) {
   saveBtn.style.display = "none";
   delBtn.style.display = "none";
@@ -71,7 +71,7 @@ if (!isSaved && !isUpdate) {
   itemCode.disabled = true;
   itemName.disabled = true;
   itemPrice.disabled = true;
-  /** 수정 */
+  /** 수정인 경우 */
 } else if (isSaved && isUpdate) {
   webTitle.textContent = "품목수정";
   title.textContent = "🐱 품목수정";
@@ -80,6 +80,7 @@ if (!isSaved && !isUpdate) {
 
 /** 초기화 함수 */
 function init() {
+  // 수정인 경우
   if (isSaved) {
     itemCode.value = savedItem.itemCode;
     itemName.value = savedItem.itemName;
@@ -128,7 +129,7 @@ function clickSaveBtnHandler() {
   };
 
   try {
-    if (itemCode.value && itemName.value && itemPrice.value && formData) {
+    if (itemCode.value && itemName.value && itemPrice.value) {
       const itemList =
         JSON.parse(window.localStorage.getItem("item-list")) || [];
       const existingIndex = itemList.findIndex(

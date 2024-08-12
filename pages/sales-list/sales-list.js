@@ -14,7 +14,7 @@ const itemsPerPage = 10;
 let pagination;
 const checkboxHandler = useCheckbox("sales");
 
-/** 코드헬프 */
+/** 코드 기반 검색 */
 new CodeHelp({
   inputId: "item-input",
   helpDivId: "item-code-help",

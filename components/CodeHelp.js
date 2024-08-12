@@ -71,18 +71,18 @@ export class CodeHelp {
     }
 
     const span = document.createElement("span");
-    span.textContent = `${item.itemCode} (${item.itemName})`;
+    span.textContent = `${item.itemName} (${item.itemCode})`;
     span.dataset.itemCode = item.itemCode;
     span.classList.add(`item-span`);
-    span.onclick = () => {
-      span.remove();
-    };
 
     // span 삭제 버튼
     const outBtn = document.createElement("span");
     outBtn.textContent = "🗑️";
     outBtn.classList.add("out-btn", `item-out-btn`);
     outBtn.dataset.code = item.itemCode;
+    outBtn.onclick = () => {
+      span.remove();
+    };
 
     span.appendChild(outBtn);
     this.helpDiv.appendChild(span);

@@ -68,7 +68,7 @@ document
   .getElementById("button-container")
   .append(saveBtn, delBtn, reBtn, closeBtn);
 
-/** 업데이트 모드 설정 */
+/** 수정 여부에 따라 다르게 처리 */
 if (isUpdate) {
   document.getElementById("web-title").textContent = "판매수정";
   document.getElementById("title").textContent = "🐱 판매수정";

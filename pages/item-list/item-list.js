@@ -11,6 +11,10 @@ import { handleCheckDelete } from "../../util/handle-check-delete.js";
 let cachedItemList = [];
 const itemsPerPage = 10;
 let pagination;
+const checkboxHandler = useCheckbox(
+  "item",
+  isSalesReg ? 1 : isSalesList ? 3 : 0
+);
 
 /** 쿼리 params */
 const params = getUrlParams();
@@ -18,11 +22,6 @@ const isSalesReg =
   window.opener && window.opener.location.href.includes("sales-reg.html");
 const isSalesList =
   window.opener && window.opener.location.href.includes("sales-list.html");
-
-const checkboxHandler = useCheckbox(
-  "item",
-  isSalesReg ? 1 : isSalesList ? 3 : 0
-);
 
 /** 조회 조건 설정 */
 const searchItemCode = document.getElementById("search-item-code");
@@ -44,7 +43,7 @@ searchItemName.addEventListener("keydown", (event) => {
   }
 });
 
-/** 코드헬프 */
+/** 코드 기반 검색 */
 const codeHelp = new CodeHelp({
   inputId: "item-input",
   helpDivId: "item-code-help",
@@ -111,6 +110,7 @@ const applyBtn = new Button({
       (index) => cachedItemList[index]
     );
 
+    // 판매 등록 진입
     if (isSalesReg) {
       if (selectedItems.length === 1) {
         codeHelp.addItem(selectedItems[0]);
@@ -123,6 +123,7 @@ const applyBtn = new Button({
       } else {
         alert("품목을 선택해주세요.");
       }
+      // 판매 조회 진입
     } else {
       if (selectedItems.length > 0) {
         selectedItems.forEach((selectedItem) => codeHelp.addItem(selectedItem));
