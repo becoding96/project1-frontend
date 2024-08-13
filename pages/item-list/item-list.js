@@ -190,14 +190,16 @@ function renderItemList() {
   paginatedData.forEach((item, i) => {
     const tr = document.createElement("tr");
 
+    // tr에 데이터 속성 추가
+    tr.dataset.itemCode = item.itemCode;
+    tr.dataset.itemName = item.itemName;
+    tr.dataset.itemPrice = parseInt(item.itemPrice, 10);
+
     const td1 = document.createElement("td");
     const input1 = document.createElement("input");
     input1.type = "checkbox";
     input1.classList.add("item-checkbox");
     input1.dataset.index = pagination.getCurrentPageIndex(i);
-    input1.dataset.itemCode = item.itemCode;
-    input1.dataset.itemName = item.itemName;
-    input1.dataset.itemPrice = parseInt(item.itemPrice, 10);
     input1.checked = checkboxHandler.isChecked(
       pagination.getCurrentPageIndex(i)
     );
@@ -208,14 +210,7 @@ function renderItemList() {
     const a1 = document.createElement("a");
     a1.href = "#";
     a1.textContent = item.itemCode;
-    a1.onclick = function () {
-      openPopup(
-        "../item-reg/item-reg.html",
-        650,
-        200,
-        `item-code=${item.itemCode}&item-name=${item.itemName}&item-price=${item.itemPrice}&save=true&update=false`
-      );
-    };
+    a1.dataset.update = false;
     td2.appendChild(a1);
 
     const td3 = document.createElement("td");
@@ -228,14 +223,7 @@ function renderItemList() {
     const a2 = document.createElement("a");
     a2.href = "#";
     a2.textContent = "수정";
-    a2.onclick = function () {
-      openPopup(
-        "../item-reg/item-reg.html",
-        650,
-        200,
-        `item-code=${item.itemCode}&item-name=${item.itemName}&item-price=${item.itemPrice}&save=true&update=true`
-      );
-    };
+    a2.dataset.update = true;
     td5.appendChild(a2);
     td5.classList.add("center");
 
@@ -247,6 +235,7 @@ function renderItemList() {
     // 이벤트 위임 => 체크박스 클릭 처리
     itemDiv.addEventListener("change", (event) => {
       if (event.target.classList.contains("item-checkbox")) {
+        const tr = event.target.closest("tr");
         const index = parseInt(event.target.dataset.index, 10);
         checkboxHandler.toggleCheckbox(
           index,
@@ -262,15 +251,18 @@ function renderItemList() {
     itemDiv.addEventListener("click", (event) => {
       if (event.target.tagName === "A") {
         event.preventDefault();
-        const itemCode = event.target.dataset.itemCode;
-        const itemName = event.target.dataset.itemName;
-        const itemPrice = event.target.dataset.itemPrice;
+
+        const tr = event.target.closest("tr");
+        const itemCode = tr.dataset.itemCode;
+        const itemName = tr.dataset.itemName;
+        const itemPrice = tr.dataset.itemPrice;
+        const update = event.target.dataset.update;
 
         openPopup(
           "../item-reg/item-reg.html",
           650,
           200,
-          `item-code=${itemCode}&item-name=${itemName}&item-price=${itemPrice}&save=true&update=true`
+          `item-code=${itemCode}&item-name=${itemName}&item-price=${itemPrice}&save=true&update=${update}`
         );
       }
     });
