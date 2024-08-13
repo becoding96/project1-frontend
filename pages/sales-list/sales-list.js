@@ -13,6 +13,7 @@ let cachedSalesList = [];
 const itemsPerPage = 10;
 let pagination;
 const checkboxHandler = useCheckbox("sales");
+let eventListenerAdded = false;
 
 /** 코드 기반 검색 */
 new CodeHelp({
@@ -159,14 +160,6 @@ function renderSalesList() {
     checkbox.checked = checkboxHandler.isChecked(
       pagination.getCurrentPageIndex(i)
     );
-    checkbox.onclick = (event) => {
-      const index = parseInt(event.target.dataset.index, 10);
-      checkboxHandler.toggleCheckbox(
-        index,
-        event.target.checked,
-        cachedSalesList
-      );
-    };
     checkboxCell.appendChild(checkbox);
     checkboxCell.classList.add("center");
     row.appendChild(checkboxCell);
@@ -174,15 +167,6 @@ function renderSalesList() {
     const slipCodeCell = document.createElement("td");
     const slipCode = document.createElement("a");
     slipCode.textContent = sale.slipCode;
-
-    slipCode.onclick = () =>
-      openPopup(
-        "../sales-reg/sales-reg.html",
-        700,
-        300,
-        `slip-code=${sale.slipCode}&update=true`
-      );
-
     slipCodeCell.appendChild(slipCode);
     row.appendChild(slipCodeCell);
 
@@ -224,15 +208,40 @@ function renderSalesList() {
     salesTableBody.appendChild(row);
   });
 
-  checkboxHandler.handleHeaderCheckboxClick(
-    ".table2 thead input[type='checkbox']",
-    ".table2 tbody input[type='checkbox']",
-    cachedSalesList
-  );
+  if (!eventListenerAdded) {
+    // 이벤트 위임 => 체크박스 클릭 처리
+    salesTableBody.addEventListener("change", (event) => {
+      if (event.target.type === "checkbox") {
+        const index = parseInt(event.target.dataset.index, 10);
+        checkboxHandler.toggleCheckbox(
+          index,
+          event.target.checked,
+          cachedSalesList
+        );
+      }
+    });
 
-  if (document.getElementById("item-code-help-img")) {
-    document.getElementById("item-code-help-img").onclick = () =>
-      openPopup("../item-list/item-list.html", 900, 600, "");
+    // 이벤트 위임 => 링크 클릭 처리
+    salesTableBody.addEventListener("click", (event) => {
+      if (event.target.tagName === "A") {
+        event.preventDefault();
+        const slipCode = event.target.textContent;
+        openPopup(
+          "../sales-reg/sales-reg.html",
+          700,
+          300,
+          `slip-code=${slipCode}&update=true`
+        );
+      }
+    });
+
+    checkboxHandler.handleHeaderCheckboxClick(
+      ".table2 thead input[type='checkbox']",
+      ".table2 tbody input[type='checkbox']",
+      cachedSalesList
+    );
+
+    eventListenerAdded = true;
   }
 
   // 페이지네이션 버튼 렌더링
