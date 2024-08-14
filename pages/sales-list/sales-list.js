@@ -2,38 +2,56 @@ import { openPopup } from "../../util/open-pop-up.js";
 import { getItemName } from "../../util/get-item-name.js";
 import { Button } from "../../components/Button.js";
 import { HomeButton } from "../../components/HomeButton.js";
-import { usePagination } from "../../hooks/usePagination.js";
-import { useCheckbox } from "../../hooks/useCheckbox.js";
-import { CodeHelp } from "../../components/CodeHelp.js";
-import { printSale } from "./sale-print.js";
 import { renderPaginationButtons } from "../../util/render-pagination-buttons.js";
 import { handleCheckDelete } from "../../util/handle-check-delete.js";
+import { printSale } from "./sale-print.js";
 
 let cachedSalesList = [];
+let selectedSales = new Map();
 const itemsPerPage = 10;
-let pagination;
-const checkboxHandler = useCheckbox("sales");
+let currentPage = 1;
+let totalPages = 1;
 let eventListenerAdded = false;
 
-/** 코드 기반 검색 */
-new CodeHelp({
-  inputId: "item-input",
-  helpDivId: "item-code-help",
-  maxItems: 3,
-  mode: "item",
-  searchFunction: (searchTerm) => {
-    const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
-    return itemList.filter((item) =>
-      item.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  },
+/** 조회 조건 설정 */
+const sItemCodeDiv = document.getElementById("item-code-help");
+const sSlipDateFr = document.getElementById("slip-date-fr");
+const sSlipDateTo = document.getElementById("slip-date-to");
+const sDescription = document.getElementById("description");
+
+sItemCodeDiv.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    currentPage = 1;
+    fetchAndCacheSalesList();
+  }
+});
+
+sSlipDateFr.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    currentPage = 1;
+    fetchAndCacheSalesList();
+  }
+});
+
+sSlipDateTo.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    currentPage = 1;
+    fetchAndCacheSalesList();
+  }
+});
+
+sDescription.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    currentPage = 1;
+    fetchAndCacheSalesList();
+  }
 });
 
 /** 버튼 생성 */
 const searchBtn = new Button({
   label: "검색",
   onClick: () => {
-    pagination.reset();
+    currentPage = 1;
     fetchAndCacheSalesList();
   },
   className: "blue-btn",
@@ -43,8 +61,8 @@ const searchBtn = new Button({
 const firstBtn = new Button({
   label: "<<",
   onClick: () => {
-    pagination.setPage(1);
-    renderSalesList();
+    currentPage = 1;
+    fetchAndCacheSalesList();
   },
   className: "page-btn",
   id: "first-btn",
@@ -53,8 +71,10 @@ const firstBtn = new Button({
 const prevBtn = new Button({
   label: "<",
   onClick: () => {
-    pagination.prevPage();
-    renderSalesList();
+    if (currentPage > 1) {
+      currentPage--;
+      fetchAndCacheSalesList();
+    }
   },
   className: "page-btn",
   id: "prev-btn",
@@ -63,8 +83,10 @@ const prevBtn = new Button({
 const nextBtn = new Button({
   label: ">",
   onClick: () => {
-    pagination.nextPage();
-    renderSalesList();
+    if (currentPage < totalPages) {
+      currentPage++;
+      fetchAndCacheSalesList();
+    }
   },
   className: "page-btn",
   id: "next-btn",
@@ -73,8 +95,8 @@ const nextBtn = new Button({
 const lastBtn = new Button({
   label: ">>",
   onClick: () => {
-    pagination.setPage(pagination.getTotalPages());
-    renderSalesList();
+    currentPage = totalPages;
+    fetchAndCacheSalesList();
   },
   className: "page-btn",
   id: "last-btn",
@@ -92,9 +114,10 @@ const checkDelBtn = new Button({
   onClick: () => {
     handleCheckDelete({
       cachedList: cachedSalesList,
-      checkboxHandler: checkboxHandler,
+      selectedDatas: selectedSales,
       storageKey: "sales-list",
       fetchFunction: fetchAndCacheSalesList,
+      identifierKey: "slipCode",
     });
   },
   id: "check-del-btn",
@@ -106,11 +129,6 @@ document.getElementById("func-btn-div").append(newBtn, checkDelBtn);
 
 /** 판매 리스트 가져와서 캐싱 */
 function fetchAndCacheSalesList() {
-  const sItemCodeDiv = document.getElementById("item-code-help");
-  const sSlipDateFr = document.getElementById("slip-date-fr");
-  const sSlipDateTo = document.getElementById("slip-date-to");
-  const sDescription = document.getElementById("description");
-
   const sItemSet = new Set(
     Array.from(sItemCodeDiv.querySelectorAll(".item-span")).map((sItem) => {
       return sItem.dataset.itemCode;
@@ -134,11 +152,8 @@ function fetchAndCacheSalesList() {
     );
   });
 
-  const oldPage = pagination ? pagination.getCurrentPage() : 1;
-  pagination = usePagination(cachedSalesList, itemsPerPage);
-  pagination.setPage(
-    oldPage > pagination.getTotalPages() ? pagination.getTotalPages() : oldPage
-  );
+  totalPages = Math.ceil(cachedSalesList.length / itemsPerPage);
+
   renderSalesList();
 }
 
@@ -147,25 +162,33 @@ function renderSalesList() {
   const salesTableBody = document.querySelector(".table2 tbody");
   salesTableBody.innerHTML = "";
 
-  const paginatedData = pagination.getPaginatedData();
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = cachedSalesList.slice(startIndex, endIndex);
 
-  paginatedData.forEach((sale, i) => {
+  if (startIndex === endIndex) {
+    currentPage--;
+    renderItemList();
+  }
+
+  paginatedData.forEach((sale) => {
     const row = document.createElement("tr");
+
+    row.dataset.slipCode = sale.slipCode;
+    row.dataset.itemCode = sale.itemCode;
 
     const checkboxCell = document.createElement("td");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.dataset.index = pagination.getCurrentPageIndex(i);
     checkbox.dataset.slipCode = sale.slipCode;
-    checkbox.checked = checkboxHandler.isChecked(
-      pagination.getCurrentPageIndex(i)
-    );
+    checkbox.checked = selectedSales.has(sale.slipCode);
     checkboxCell.appendChild(checkbox);
     checkboxCell.classList.add("center");
     row.appendChild(checkboxCell);
 
     const slipCodeCell = document.createElement("td");
     const slipCode = document.createElement("a");
+    slipCode.href = "#";
     slipCode.textContent = sale.slipCode;
     slipCodeCell.appendChild(slipCode);
     row.appendChild(slipCodeCell);
@@ -209,23 +232,29 @@ function renderSalesList() {
   });
 
   if (!eventListenerAdded) {
-    // 이벤트 위임 => 체크박스 클릭 처리
     salesTableBody.addEventListener("change", (event) => {
       if (event.target.type === "checkbox") {
-        const index = parseInt(event.target.dataset.index, 10);
-        checkboxHandler.toggleCheckbox(
-          index,
-          event.target.checked,
-          cachedSalesList
-        );
+        const slipCode = event.target.dataset.slipCode;
+        if (event.target.checked) {
+          const sale = cachedSalesList.find(
+            (sale) => sale.slipCode === slipCode
+          );
+          if (sale) {
+            selectedSales.set(slipCode, sale);
+          }
+        } else {
+          selectedSales.delete(slipCode);
+        }
+        updateCheckedDiv();
       }
     });
 
-    // 이벤트 위임 => 링크 클릭 처리
     salesTableBody.addEventListener("click", (event) => {
       if (event.target.tagName === "A") {
         event.preventDefault();
-        const slipCode = event.target.textContent;
+        const tr = event.target.closest("tr");
+        const slipCode = tr.dataset.slipCode;
+
         openPopup(
           "../sales-reg/sales-reg.html",
           700,
@@ -235,18 +264,39 @@ function renderSalesList() {
       }
     });
 
-    checkboxHandler.handleHeaderCheckboxClick(
-      ".table2 thead input[type='checkbox']",
-      ".table2 tbody input[type='checkbox']",
-      cachedSalesList
-    );
+    document.querySelector(".table2 thead input[type='checkbox']").onclick = (
+      event
+    ) => {
+      const checkboxes = document.querySelectorAll(
+        ".table2 tbody input[type='checkbox']"
+      );
+      checkboxes.forEach((checkbox) => {
+        const slipCode = checkbox.dataset.slipCode;
+        checkbox.checked = event.target.checked;
+        if (checkbox.checked) {
+          const sale = cachedSalesList.find(
+            (sale) => sale.slipCode === slipCode
+          );
+          if (sale) {
+            selectedSales.set(slipCode, sale);
+          }
+        } else {
+          selectedSales.delete(slipCode);
+        }
+      });
+      updateCheckedDiv();
+    };
 
     eventListenerAdded = true;
   }
 
-  // 페이지네이션 버튼 렌더링
   renderPaginationButtons({
-    pagination,
+    currentPage,
+    totalPages,
+    setPage: (page) => {
+      currentPage = page;
+      fetchAndCacheSalesList();
+    },
     renderListFunction: renderSalesList,
     paginationDivId: "next-prev-btn-div",
     firstBtn,
@@ -256,20 +306,26 @@ function renderSalesList() {
   });
 }
 
-/** 품목 조회 조건의 품목 아이템 클릭 시 삭제 */
-function searchItemDelete() {
-  const outBtnList = document.querySelectorAll(".item-out-btn");
+/** 상단 선택 항목 표시 */
+function updateCheckedDiv() {
+  const checkedDiv = document.getElementById("checked-div");
+  checkedDiv.innerHTML = "";
 
-  outBtnList.forEach((outBtn) => {
-    outBtn.onclick = () => {
-      outBtn.parentNode.remove();
+  selectedSales.forEach((sale) => {
+    const div = document.createElement("div");
+    div.textContent = `${sale.slipCode}`;
+    div.dataset.slipCode = sale.slipCode;
+    div.onclick = () => {
+      selectedSales.delete(sale.slipCode);
+      const checkbox = document.querySelector(
+        `input[data-slip-code='${sale.slipCode}']`
+      );
+      if (checkbox) checkbox.checked = false;
+      updateCheckedDiv();
     };
+    checkedDiv.appendChild(div);
   });
 }
-
-/** 판매 등록에서 사용할 수 있도록 전역화 */
-window.fetchAndCacheSalesList = fetchAndCacheSalesList;
-window.searchItemDelete = searchItemDelete;
 
 /** 초기 조회 */
 fetchAndCacheSalesList();
@@ -277,3 +333,6 @@ fetchAndCacheSalesList();
 /** 홈 버튼 렌더링 */
 const homeButton = new HomeButton();
 homeButton.render();
+
+/** 판매 등록에서 사용할 수 있도록 전역화 */
+window.fetchAndCacheSalesList = fetchAndCacheSalesList;

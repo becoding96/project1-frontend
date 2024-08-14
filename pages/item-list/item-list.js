@@ -132,9 +132,10 @@ const checkDelBtn = new Button({
   onClick: () => {
     handleCheckDelete({
       cachedList: cachedItemList,
-      checkboxHandler: { getSelectedItems: () => selectedItems },
+      selectedDatas: selectedItems,
       storageKey: "item-list",
       fetchFunction: fetchAndCacheItemList,
+      identifierKey: "itemCode",
     });
   },
   id: "check-del-btn",
@@ -186,6 +187,11 @@ function renderItemList() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = cachedItemList.slice(startIndex, endIndex);
+
+  if (startIndex === endIndex) {
+    currentPage--;
+    renderItemList();
+  }
 
   paginatedData.forEach((item) => {
     const tr = document.createElement("tr");
