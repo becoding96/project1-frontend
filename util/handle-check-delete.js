@@ -4,13 +4,15 @@ export function handleCheckDelete({
   storageKey,
   fetchFunction,
 }) {
+  const selectedItems = checkboxHandler.getSelectedItems(); // selectedItems 가져오기
+
   const updatedList = cachedList.filter(
-    (item, index) => !checkboxHandler.getSelectedIndices().has(index)
+    (item) => !selectedItems.has(item.itemCode) // selectedItems에 없는 항목만 필터링
   );
 
   cachedList.length = 0;
   cachedList.push(...updatedList);
-  checkboxHandler.getSelectedIndices().clear();
+  checkboxHandler.getSelectedItems().clear(); // 선택된 항목 초기화
 
   window.localStorage.setItem(storageKey, JSON.stringify(updatedList));
   alert("선택된 항목이 삭제되었습니다.");

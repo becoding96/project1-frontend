@@ -2,7 +2,9 @@ import { Button } from "../components/Button.js";
 
 /** 페이지네이션 버튼 렌더링 함수 */
 export function renderPaginationButtons({
-  pagination,
+  currentPage,
+  totalPages,
+  setPage,
   renderListFunction,
   paginationDivId,
   firstBtn,
@@ -13,7 +15,8 @@ export function renderPaginationButtons({
   const paginationDiv = document.getElementById(paginationDivId);
   paginationDiv.innerHTML = "";
 
-  const visiblePages = pagination.getVisiblePageNumbers();
+  // 표시할 페이지 번호 계산
+  const visiblePages = getVisiblePageNumbers(currentPage, totalPages);
 
   paginationDiv.append(firstBtn, prevBtn);
 
@@ -21,13 +24,10 @@ export function renderPaginationButtons({
     const pageButton = new Button({
       label: pageNumber.toString(),
       onClick: () => {
-        pagination.setPage(pageNumber);
+        setPage(pageNumber);
         renderListFunction();
       },
-      className:
-        pageNumber === pagination.getCurrentPage()
-          ? "page-btn blue-btn"
-          : "page-btn",
+      className: pageNumber === currentPage ? "page-btn blue-btn" : "page-btn",
     }).render();
 
     paginationDiv.appendChild(pageButton);
@@ -35,8 +35,17 @@ export function renderPaginationButtons({
 
   paginationDiv.append(nextBtn, lastBtn);
 
-  document.getElementById(prevBtn.id).disabled =
-    pagination.getCurrentPage() === 1;
-  document.getElementById(nextBtn.id).disabled =
-    pagination.getCurrentPage() >= pagination.getTotalPages();
+  document.getElementById(prevBtn.id).disabled = currentPage === 1;
+  document.getElementById(nextBtn.id).disabled = currentPage >= totalPages;
+}
+
+/** 페이지 번호 계산 함수 */
+function getVisiblePageNumbers(currentPage, totalPages) {
+  const visiblePages = 5;
+  let start = Math.max(currentPage - Math.floor(visiblePages / 2), 1);
+  let end = Math.min(start + visiblePages - 1, totalPages);
+  if (end - start < visiblePages - 1) {
+    start = Math.max(end - visiblePages + 1, 1);
+  }
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }

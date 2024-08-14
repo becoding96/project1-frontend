@@ -2,15 +2,15 @@ import { Button } from "../../components/Button.js";
 import { HomeButton } from "../../components/HomeButton.js";
 import { getUrlParams } from "../../util/get-url-params.js";
 import { openPopup } from "../../util/open-pop-up.js";
-import { usePagination } from "../../hooks/usePagination.js";
-import { useCheckbox } from "../../hooks/useCheckbox.js";
 import { CodeHelp } from "../../components/CodeHelp.js";
 import { renderPaginationButtons } from "../../util/render-pagination-buttons.js";
 import { handleCheckDelete } from "../../util/handle-check-delete.js";
 
 let cachedItemList = [];
+let selectedItems = new Map();
 const itemsPerPage = 10;
-let pagination;
+let currentPage = 1;
+let totalPages = 1;
 let eventListenerAdded = false;
 
 /** 쿼리 params */
@@ -20,10 +20,7 @@ const isSalesReg =
 const isSalesList =
   window.opener && window.opener.location.href.includes("sales-list.html");
 
-const checkboxHandler = useCheckbox(
-  "item",
-  isSalesReg ? 1 : isSalesList ? 3 : 0
-);
+const maxCount = isSalesReg ? 1 : isSalesList ? 3 : 0; // 최대 선택 개수 설정
 
 /** 조회 조건 설정 */
 const searchItemCode = document.getElementById("search-item-code");
@@ -33,14 +30,14 @@ searchItemCode.value = params.search || "";
 
 searchItemCode.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    pagination.reset();
+    currentPage = 1;
     fetchAndCacheItemList();
   }
 });
 
 searchItemName.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    pagination.reset();
+    currentPage = 1;
     fetchAndCacheItemList();
   }
 });
@@ -58,7 +55,7 @@ const codeHelp = new CodeHelp({
 const searchBtn = new Button({
   label: "검색",
   onClick: () => {
-    pagination.reset();
+    currentPage = 1;
     fetchAndCacheItemList();
   },
   className: "blue-btn",
@@ -68,8 +65,8 @@ const searchBtn = new Button({
 const firstBtn = new Button({
   label: "<<",
   onClick: () => {
-    pagination.setPage(1);
-    renderItemList();
+    currentPage = 1;
+    fetchAndCacheItemList();
   },
   className: "page-btn",
   id: "first-btn",
@@ -78,8 +75,10 @@ const firstBtn = new Button({
 const prevBtn = new Button({
   label: "<",
   onClick: () => {
-    pagination.prevPage();
-    renderItemList();
+    if (currentPage > 1) {
+      currentPage--;
+      fetchAndCacheItemList();
+    }
   },
   className: "page-btn",
   id: "prev-btn",
@@ -88,8 +87,10 @@ const prevBtn = new Button({
 const nextBtn = new Button({
   label: ">",
   onClick: () => {
-    pagination.nextPage();
-    renderItemList();
+    if (currentPage < totalPages) {
+      currentPage++;
+      fetchAndCacheItemList();
+    }
   },
   className: "page-btn",
   id: "next-btn",
@@ -98,8 +99,8 @@ const nextBtn = new Button({
 const lastBtn = new Button({
   label: ">>",
   onClick: () => {
-    pagination.setPage(pagination.getTotalPages());
-    renderItemList();
+    currentPage = totalPages;
+    fetchAndCacheItemList();
   },
   className: "page-btn",
   id: "last-btn",
@@ -131,7 +132,7 @@ const checkDelBtn = new Button({
   onClick: () => {
     handleCheckDelete({
       cachedList: cachedItemList,
-      checkboxHandler: checkboxHandler,
+      checkboxHandler: { getSelectedItems: () => selectedItems },
       storageKey: "item-list",
       fetchFunction: fetchAndCacheItemList,
     });
@@ -172,11 +173,8 @@ function fetchAndCacheItemList() {
     );
   });
 
-  const oldPage = pagination ? pagination.getCurrentPage() : 1;
-  pagination = usePagination(cachedItemList, itemsPerPage);
-  pagination.setPage(
-    oldPage > pagination.getTotalPages() ? pagination.getTotalPages() : oldPage
-  );
+  totalPages = Math.ceil(cachedItemList.length / itemsPerPage);
+
   renderItemList();
 }
 
@@ -185,12 +183,13 @@ function renderItemList() {
   const itemDiv = document.getElementById("item-div");
   itemDiv.innerHTML = "";
 
-  const paginatedData = pagination.getPaginatedData();
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = cachedItemList.slice(startIndex, endIndex);
 
-  paginatedData.forEach((item, i) => {
+  paginatedData.forEach((item) => {
     const tr = document.createElement("tr");
 
-    // tr에 데이터 속성 추가
     tr.dataset.itemCode = item.itemCode;
     tr.dataset.itemName = item.itemName;
     tr.dataset.itemPrice = parseInt(item.itemPrice, 10);
@@ -199,10 +198,8 @@ function renderItemList() {
     const input1 = document.createElement("input");
     input1.type = "checkbox";
     input1.classList.add("item-checkbox");
-    input1.dataset.index = pagination.getCurrentPageIndex(i);
-    input1.checked = checkboxHandler.isChecked(
-      pagination.getCurrentPageIndex(i)
-    );
+    input1.dataset.itemCode = item.itemCode;
+    input1.checked = selectedItems.has(item.itemCode);
     td1.appendChild(input1);
     td1.classList.add("center");
 
@@ -232,22 +229,28 @@ function renderItemList() {
   });
 
   if (!eventListenerAdded) {
-    // 이벤트 위임 => 체크박스 클릭 처리
     itemDiv.addEventListener("change", (event) => {
       if (event.target.classList.contains("item-checkbox")) {
-        const tr = event.target.closest("tr");
-        const index = parseInt(event.target.dataset.index, 10);
-        checkboxHandler.toggleCheckbox(
-          index,
-          event.target.checked,
-          cachedItemList,
-          event,
-          1
-        );
+        const itemCode = event.target.dataset.itemCode;
+        if (event.target.checked) {
+          if (maxCount != 0 && selectedItems.size >= maxCount) {
+            alert(`최대 ${maxCount}개만 선택 가능합니다.`);
+            event.target.checked = false;
+            return;
+          }
+          const item = cachedItemList.find(
+            (item) => item.itemCode === itemCode
+          );
+          if (item) {
+            selectedItems.set(itemCode, item);
+          }
+        } else {
+          selectedItems.delete(itemCode);
+        }
+        updateCheckedDiv();
       }
     });
 
-    // 이벤트 위임 => 링크 클릭 처리
     itemDiv.addEventListener("click", (event) => {
       if (event.target.tagName === "A") {
         event.preventDefault();
@@ -267,18 +270,39 @@ function renderItemList() {
       }
     });
 
-    checkboxHandler.handleHeaderCheckboxClick(
-      ".table2 thead input[type='checkbox']",
-      ".table2 tbody input[type='checkbox']",
-      cachedItemList
-    );
+    document.querySelector(".table2 thead input[type='checkbox']").onclick = (
+      event
+    ) => {
+      const checkboxes = document.querySelectorAll(
+        ".table2 tbody input[type='checkbox']"
+      );
+      checkboxes.forEach((checkbox) => {
+        const itemCode = checkbox.dataset.itemCode;
+        checkbox.checked = event.target.checked;
+        if (checkbox.checked) {
+          const item = cachedItemList.find(
+            (item) => item.itemCode === itemCode
+          );
+          if (item) {
+            selectedItems.set(itemCode, item);
+          }
+        } else {
+          selectedItems.delete(itemCode);
+        }
+      });
+      updateCheckedDiv();
+    };
 
     eventListenerAdded = true;
   }
 
-  // 페이지네이션 버튼 렌더링
   renderPaginationButtons({
-    pagination,
+    currentPage,
+    totalPages,
+    setPage: (page) => {
+      currentPage = page;
+      fetchAndCacheItemList();
+    },
     renderListFunction: renderItemList,
     paginationDivId: "next-prev-btn-div",
     firstBtn,
@@ -288,17 +312,36 @@ function renderItemList() {
   });
 }
 
+/** 상단 표시 */
+function updateCheckedDiv() {
+  const checkedDiv = document.getElementById("checked-div");
+  checkedDiv.innerHTML = "";
+
+  selectedItems.forEach((item) => {
+    const div = document.createElement("div");
+    div.textContent = `${item.itemName} (${item.itemCode})`;
+    div.dataset.itemCode = item.itemCode;
+    div.onclick = () => {
+      selectedItems.delete(item.itemCode);
+      const checkbox = document.querySelector(
+        `input[data-item-code='${item.itemCode}']`
+      );
+      if (checkbox) checkbox.checked = false;
+      updateCheckedDiv();
+    };
+    checkedDiv.appendChild(div);
+  });
+}
+
 /** 적용 버튼 핸들러 */
 function handleApplyClick() {
-  const selectedItems = Array.from(checkboxHandler.getSelectedIndices()).map(
-    (index) => cachedItemList[index]
-  );
+  const selectedItemsArray = Array.from(selectedItems.values());
 
   if (isSalesReg) {
-    if (selectedItems.length === 1) {
-      codeHelp.addItem(selectedItems[0]);
+    if (selectedItemsArray.length === 1) {
+      codeHelp.addItem(selectedItemsArray[0]);
       window.opener.document.getElementById("price").value = parseInt(
-        selectedItems[0].itemPrice,
+        selectedItemsArray[0].itemPrice,
         10
       );
       window.opener.inputItemDelete();
@@ -307,8 +350,10 @@ function handleApplyClick() {
       alert("품목을 선택해주세요.");
     }
   } else {
-    if (selectedItems.length > 0) {
-      selectedItems.forEach((selectedItem) => codeHelp.addItem(selectedItem));
+    if (selectedItemsArray.length > 0) {
+      selectedItemsArray.forEach((selectedItem) =>
+        codeHelp.addItem(selectedItem)
+      );
       window.opener.searchItemDelete();
       window.close();
     } else {
