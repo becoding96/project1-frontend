@@ -4,6 +4,7 @@ import { Button } from "../../components/Button.js";
 import { HomeButton } from "../../components/HomeButton.js";
 import { renderPaginationButtons } from "../../util/render-pagination-buttons.js";
 import { handleCheckDelete } from "../../util/handle-check-delete.js";
+import { CodeHelp } from "../../components/CodeHelp.js";
 import { printSale } from "./sale-print.js";
 
 let cachedSalesList = [];
@@ -19,25 +20,18 @@ const sSlipDateFr = document.getElementById("slip-date-fr");
 const sSlipDateTo = document.getElementById("slip-date-to");
 const sDescription = document.getElementById("description");
 
-sItemCodeDiv.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    currentPage = 1;
-    fetchAndCacheSalesList();
-  }
-});
-
-sSlipDateFr.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    currentPage = 1;
-    fetchAndCacheSalesList();
-  }
-});
-
-sSlipDateTo.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    currentPage = 1;
-    fetchAndCacheSalesList();
-  }
+/** 코드 기반 검색 */
+const codeHelp = new CodeHelp({
+  inputId: "item-input",
+  helpDivId: "item-code-help",
+  maxItems: 3,
+  mode: "item",
+  searchFunction: (searchTerm) => {
+    const itemList = JSON.parse(window.localStorage.getItem("item-list")) || [];
+    return itemList.filter((item) =>
+      item.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  },
 });
 
 sDescription.addEventListener("keydown", (event) => {
@@ -166,9 +160,10 @@ function renderSalesList() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = cachedSalesList.slice(startIndex, endIndex);
 
-  if (startIndex === endIndex) {
-    currentPage--;
-    renderItemList();
+  if (startIndex >= cachedSalesList.length) {
+    currentPage = totalPages > 0 ? totalPages : 1;
+    fetchAndCacheSalesList();
+    return;
   }
 
   paginatedData.forEach((sale) => {
